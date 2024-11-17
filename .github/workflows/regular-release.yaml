@@ -70,4 +70,8 @@ jobs:
       run: echo "TODO" # Stuff & Things?? TODO
 
     - name: Download Versions as they become available
-      run: node ./downloadBinsWhenPossible --saveLoc "pulsar-bins" --releasePrLink ${{ env.releasePrLink }}
+      run: |
+        node ./downloadBinsWhenPossible \
+          --saveLoc "pulsar-bins" \
+          --releasePrLink ${{ env.releasePrLink }} \
+          --githubAuthToken ${{ SECRETS.TODO }}

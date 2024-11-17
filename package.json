@@ -8,6 +8,8 @@
     "@actions/core": "^1.11.1",
     "command-line-args": "^6.0.1",
     "octokit": "^4.0.2",
-    "semver": "^7.6.3"
+    "semver": "^7.6.3",
+    "superagent": "^10.1.1",
+    "zip-lib": "^1.0.5"
   }
 }

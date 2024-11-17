@@ -1,24 +1,22 @@
 /*
-  A wrapper utility to help keep each step's code concise.
+  An async wrapper utility to help keep each step's code concise.
 */
 
 const commandLineArgs = require("command-line-args");
 
 module.exports =
 function wrapper(obj) {
-  try {
-    const opts = commandLineArgs(obj.opts);
+  const opts = commandLineArgs(obj.opts);
 
-    console.log(obj.startMsg);
+  console.log(obj.startMsg);
 
-    obj.run(opts);
-
+  obj.run(opts).then((res, err) => {
     console.log(obj.successMsg);
     process.exit(0);
-
-  } catch(err) {
+  }).catch((err) => {
     console.error(obj.failMsg);
     console.error(err);
     process.exit(1);
-  }
+  });
+
 }

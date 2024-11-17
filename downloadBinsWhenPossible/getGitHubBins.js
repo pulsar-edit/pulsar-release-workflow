@@ -12,24 +12,33 @@
     - Extract those bins into the proper location
 */
 
-const Octokit = require("octokit");
-const { getPrNumber } = require("./shared.js");
+const fs = require("fs");
+const { performance } = require("node:perf_hooks");
+const superagent = require("superagent");
+const zl = require("zip-lib");
+const { getPrNumber, makeDir, asyncWriteStreamProgress } = require("./shared.js");
 
 const CONSTANTS = {
   ORG: "pulsar-edit", // Organization Name to search within
   REPO: "pulsar", // Repository Name to search within
-  ACTION_NAME: "Build Pulsar Binaries" // The workflow name who will have the built binaries as artifacts
+  ACTION_NAME: "Build Pulsar Binaries", // The workflow name who will have the built binaries as artifacts
   ARTIFACTS_TO_DOWNLOAD: [ "macos-12 Binaries", "ubuntu-latest Binaries", "windows-latest Binaries" ],
   // ^^ Names of the Artifacts we want to download
 };
 
 module.exports =
 async function getGitHubBins(opts) {
+  console.log("Beginning the download of GitHub Bins");
+
+  const Octokit = await import("octokit").then(octo => octo.Octokit); // ESM export only
+
   const octokit = new Octokit({
-    // TODO authentication
+    auth: opts.githubAuthToken
   });
 
   const prNumber = getPrNumber(opts.releasePrLink);
+
+  console.log(`PR Number: '${prNumber}'`);
 
   const prDetails = await octokit.request("GET /repos/{owner}/{repo}/pulls/{pull_number}", {
     owner: CONSTANTS.ORG,
@@ -38,6 +47,7 @@ async function getGitHubBins(opts) {
   });
 
   const headSha = prDetails.data.head.sha; // Last commit on branch
+  console.log(`Head SHA: '${headSha}'`);
 
   const workflows = await octokit.request("GET /repos/{owner}/{repo}/actions/runs{?head_sha}", {
     owner: CONSTANTS.ORG,
@@ -78,7 +88,8 @@ async function getGitHubBins(opts) {
 
   // Now with our list of artifacts, lets iterate them and see which ones we want to download
   for (let i = 0; i < artifacts.data.total_count; i++) {
-    if (CONSTANTS.ARTIFACTS_TO_DOWNLOAD.contains(artifacts.data.artifacts[i].name)) {
+    if (CONSTANTS.ARTIFACTS_TO_DOWNLOAD.includes(artifacts.data.artifacts[i].name)) {
+      console.log(`Downloading: '${artifacts.data.artifacts[i].name}'`);
 
       // https://github.com/octokit/request.js/issues/240#issuecomment-825070563
       const artifactDownload = await octokit.request(
@@ -96,8 +107,29 @@ async function getGitHubBins(opts) {
 
       const artifactURL = artifactDownload.headers.location;
 
-      // TODO save file to disk
-      // TODO extract
+      // Now we need to save to the disk
+      makeDir("./temp");
+      const startDownloadTime = performance.now();
+      const stream = fs.createWriteStream(`./temp/${artifactNameToFileName(artifacts.data.artifacts[i].name)}.zip`);
+      const req = superagent.get(artifactURL);
+      req.pipe(stream);
+      // Wait for the data to be completed
+      await asyncWriteStreamProgress(stream, artifacts.data.artifacts[i].size_in_bytes, startDownloadTime);
+      console.log(`Stream finished writing '${artifactNameToFileName(artifacts.data.artifacts[i].name)}.zip'`);
+
+      // With the response being piped to disk
+      await zl.extract(
+        `./temp/${artifactNameToFileName(artifacts.data.artifacts[i].name)}.zip`,
+        `${opts.saveLoc}/${artifactNameToFileName(artifacts.data.artifacts[i].name)}`
+      );
     }
   }
+}
+
+function artifactNameToFileName(name) {
+  let newName = name.replace(/\W/g, "");
+  newName = newName.replace("Binaries", "");
+
+  // Should result in just platform/version name
+  return newName;
 }

@@ -4,9 +4,10 @@
   Arguments:
     * saveLoc: The location to save all bins to
     * releasePrLink: The URL of the release PR
+    * githubAuthToken: A GitHub Auth Token for repository access
 */
 
-const wrapper = require("../wrapper");
+const wrapper = require("../wrapper/async.js");
 const getGitHubBins = require("./getGitHubBins.js");
 
 const CONSTANTS = {
@@ -17,7 +18,8 @@ const CONSTANTS = {
 wrapper({
   opts: [
     { name: "saveLoc", type: String },
-    { name: "releasePrLink", type: String }
+    { name: "releasePrLink", type: String },
+    { name: "githubAuthToken", type: String }
   ],
   startMsg: "Begin searching for bins...",
   successMsg: "Successfully saved all bins.",
