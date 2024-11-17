@@ -12,17 +12,23 @@
     - Extract those bins into the proper location
 */
 
-const octokit = require("octokit");
+const Octokit = require("octokit");
 const { getPrNumber } = require("./shared.js");
 
 const CONSTANTS = {
   ORG: "pulsar-edit", // Organization Name to search within
   REPO: "pulsar", // Repository Name to search within
   ACTION_NAME: "Build Pulsar Binaries" // The workflow name who will have the built binaries as artifacts
+  ARTIFACTS_TO_DOWNLOAD: [ "macos-12 Binaries", "ubuntu-latest Binaries", "windows-latest Binaries" ],
+  // ^^ Names of the Artifacts we want to download
 };
 
 module.exports =
 async function getGitHubBins(opts) {
+  const octokit = new Octokit({
+    // TODO authentication
+  });
+
   const prNumber = getPrNumber(opts.releasePrLink);
 
   const prDetails = await octokit.request("GET /repos/{owner}/{repo}/pulls/{pull_number}", {
@@ -70,5 +76,28 @@ async function getGitHubBins(opts) {
     run_id: targetWorkflow.id
   });
 
-  // TODO - finish this
+  // Now with our list of artifacts, lets iterate them and see which ones we want to download
+  for (let i = 0; i < artifacts.data.total_count; i++) {
+    if (CONSTANTS.ARTIFACTS_TO_DOWNLOAD.contains(artifacts.data.artifacts[i].name)) {
+
+      // https://github.com/octokit/request.js/issues/240#issuecomment-825070563
+      const artifactDownload = await octokit.request(
+        "HEAD /repos/{owner}/{repo}/actions/artifacts/{artifact_id}/{archive_format}",
+        {
+          owner: CONSTANTS.ORG,
+          repo: CONSTANTS.REPO,
+          artifact_id: artifacts.data.artifacts[i].id,
+          archive_format: "zip",
+          request: {
+            redirect: "manual"
+          }
+        }
+      );
+
+      const artifactURL = artifactDownload.headers.location;
+
+      // TODO save file to disk
+      // TODO extract
+    }
+  }
 }
