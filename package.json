@@ -1,0 +1,13 @@
+{
+  "name": "pulsar-release-workflow",
+  "version": "1.0.0",
+  "description": "This repository is dedicated to automating the Pulsar Regular Release process.",
+  "author": "confused-Techie",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "command-line-args": "^6.0.1",
+    "octokit": "^4.0.2",
+    "semver": "^7.6.3"
+  }
+}

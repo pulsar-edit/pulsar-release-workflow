@@ -1,0 +1,73 @@
+name: Automated Regular Release
+
+on:
+  workflow_dispatch:
+
+env:
+  # Variables needed
+  nextPulsarVersion: "null" # Set by 'findNextPulsarVersion' script
+  releasePrLink: "null" # Set via CLI in 'Create GitHub Pull Request'
+
+jobs:
+  tag-new-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone the pulsar-edit/pulsar repository
+      run: git clone https://github.com/pulsar-edit/pulsar pulsar
+
+    - name: Setup NodeJS
+      uses: actions/setup-node@v4
+      with:
+        node-version: latest
+
+    - name: Setup Git User
+      run: # Stuff & Things?? TODO
+
+    - name: Find new Version
+      run: |
+        node ./findNextPulsarVersion \
+          --packageLocation "pulsar/package.json" \
+          --envVarOutput "nextPulsarVersion"
+
+    - name: Create new branch under new version
+      run: git switch -c v${{ env.nextPulsarVersion }}-release origin/master
+
+    - name: Remove 'package.json' version build identifier
+      run: node ./removeDevFromVersion --packageLocation "pulsar/package.json"
+
+    - name: Bump Pulsar Version
+      run: |
+        cd pulsar
+        npm version minor
+
+    - name: Commit changes
+      run: git commit -m "Update Version"
+
+    - name: Tag changes
+      run: git tag v${{ env.nextPulsarVersion }}
+
+    - name: Push Branch to Remote
+      run: git push -u origin v${{ env.nextPulsarVersion }}-release
+
+    - name: Create GitHub Pull Request
+      run: |
+        gh pr create \
+          --title "v${{ env.nextPulsarVersion }} Release" \
+          --body "Automated Regular Release" >> $env:releasePrLink
+
+    - name: Push tag to remote
+      run: git push origin v${{ env.nextPulsarVersion }}
+
+  manage-bins:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup NodeJS
+      uses: actions/setup-node@v4
+      with:
+        node-version: latest
+
+    - name: Setup Git User
+      run: # Stuff & Things?? TODO
+
+    - name: Download Versions as they become available
+      run: node ./downloadBinsWhenPossible --saveLoc "pulsar-bins" --releasePrLink ${{ env.releasePrLink }}
