@@ -21,7 +21,7 @@ jobs:
         node-version: latest
 
     - name: Setup Git User
-      run: # Stuff & Things?? TODO
+      run: echo "TODO" # Stuff & Things?? TODO
 
     - name: Find new Version
       run: |
@@ -67,7 +67,7 @@ jobs:
         node-version: latest
 
     - name: Setup Git User
-      run: # Stuff & Things?? TODO
+      run: echo "TODO" # Stuff & Things?? TODO
 
     - name: Download Versions as they become available
       run: node ./downloadBinsWhenPossible --saveLoc "pulsar-bins" --releasePrLink ${{ env.releasePrLink }}
