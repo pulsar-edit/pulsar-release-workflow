@@ -1,3 +1,17 @@
+/*
+  Grab bins from the appropriate PR/GitHub Actions.
+
+  Steps:
+    - Get Details of PR: Head SHA (Last commit on branch)
+    - Get Details of Workflows for that SHA
+    - Find a workflow with the following properties:
+      * Status: Completed
+      * Conclusion: Success
+      * Name: Matches `CONSTANTS.ACTION_NAME`
+    - Download ZIP bins from workflow
+    - Extract those bins into the proper location
+*/
+
 const octokit = require("octokit");
 const { getPrNumber } = require("./shared.js");
 
