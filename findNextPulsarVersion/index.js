@@ -6,6 +6,10 @@
 
   Arguments:
     * packageLocation: The location of the effected `package.json`
+    * envVarOutput: What environment variable to store the resulting version in.
+                    Stores in a format similar to `1.122.0`
+  Optional Arguments:
+    * bumpType: What kind of bump we are preforming. e.g. "minor"
 */
 
 const fs = require("fs");
@@ -16,7 +20,8 @@ const wrapper = require("../wrapper");
 wrapper({
   opts: [
     { name: "packageLocation", type: String },
-    { name: "envVarOutput", type: String }
+    { name: "envVarOutput", type: String },
+    { name: "bumpType", type: String, defaultValue: "minor" },
   ],
   startMsg: "Beginning the search for Pulsar's Next Version",
   successMsg: "Successfully found and returned Pulsar's next version",
@@ -29,7 +34,7 @@ wrapper({
 
     version = version.replace("-dev", "");
 
-    version = semver.inc(version, "minor");
+    version = semver.inc(version, opts.bumpType);
 
     core.exportVariable(opts.envVarOutput, version);
 

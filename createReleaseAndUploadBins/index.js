@@ -5,6 +5,10 @@
     * binLoc: The location of where the bins to upload to the release are.
     * version: The version of Pulsar we are releasing. Like "v1.122.0"
     * githubAuthToken: A GitHub user auth token.
+  Optional Arguments:
+    * owner:
+    * repo:
+    * notes:
 
   Based almost entirely off work here:
     https://github.com/pulsar-edit/pulsar/blob/master/script/rolling-release-scripts/rolling-release-binary-upload.js
@@ -18,7 +22,10 @@ wrapper({
   opts: [
     { name: "binLoc", type: String },
     { name: "version", type: String },
-    { name: "githubAuthToken", type: String }
+    { name: "githubAuthToken", type: String },
+    { name: "owner", type: String, defaultValue: "pulsar-edit" },
+    { name: "repo", type: String, defaultValue: "pulsar" },
+    { name: "notes", type: String, defaultValue: "Beep. Boop. Done by a bot. Release notes coming soon..." },
   ],
   startMsg: "Starting the release creation and bin upload process...",
   successMsg: "Successfully created the release and added bins.",
@@ -31,10 +38,10 @@ wrapper({
 
     publish({
       token: opts.githubAuthToken,
-      owner: "pulsar-edit",
-      repo: "pulsar",
+      owner: opts.owner,
+      repo: opts.repo,
       name: opts.version,
-      notes: "Beep. Boop. Done by a bot. Release notes coming soon...",
+      notes: opts.notes,
       tag: opts.version,
       draft: false,
       prerelease: false,
@@ -57,12 +64,3 @@ wrapper({
     });
   }
 });
-
-async function runner(opts) {
-  // Lets collect our binaries
-
-  const binaryAssets = fs.readdirSync(opts.binLoc);
-
-  // Now to create our release, while simultaniously uploading bins
-
-}

@@ -1,6 +1,5 @@
 /*
   Grab bins from CirrusCI for the appropriate branch.
-
 */
 
 const path = require("path");
@@ -8,10 +7,6 @@ const fs = require("fs");
 const { performance } = require("node:perf_hooks");
 const superagent = require("superagent");
 const { makeDir, asyncWriteStreamProgress } = require("./shared.js");
-
-const CONSTANTS = {
-  CIRRUS_REPO_ID: "6483909499158528", // The repository ID on Cirrus. 'pulsar-edit/pulsar' by default
-};
 
 module.exports =
 async function getCirrusCiBins(opts) {
@@ -21,7 +16,7 @@ async function getCirrusCiBins(opts) {
 
   const repositoryQuery = `
     query GetRepositoryBuildStatuses {
-      repository(id: ${CONSTANTS.CIRRUS_REPO_ID}) {
+      repository(id: ${opts.cirrusRepoID}) {
         builds(last: 13, status: COMPLETED) {
           edges {
             node {
@@ -35,7 +30,7 @@ async function getCirrusCiBins(opts) {
     }
   `;
 
-  console.log(`Getting Build Statuses for the Repository '${CONSTANTS.CIRRUS_REPO_ID}'`);
+  console.log(`Getting Build Statuses for the Repository '${opts.cirrusRepoID}'`);
   const repositoryGraph = await cirrusRequest(repositoryQuery);
 
   let buildID = undefined; // The CirrusCI Build ID we care about

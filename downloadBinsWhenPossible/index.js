@@ -6,15 +6,36 @@
     * releasePrLink: The URL of the release PR
     * githubAuthToken: A GitHub Auth Token for repository access
     * tag: The tag string used on GitHub for this release
+  Optional Arguments:
+    * retryCount:
+    * retryTimeMs:
+    * githubOrg:
+    * githubRepo:
+    * githubActionName:
+    * githubArtifactsToDownload:
+    * cirrusRepoID:
 */
 
 const wrapper = require("../wrapper/async.js");
 const getGitHubBins = require("./getGitHubBins.js");
 const getCirrusCiBins = require("./getCirrusCiBins.js");
 
-const CONSTANTS = {
-  RETRY_COUNT: 10, // The total number of times we will retry per service to download bins
-  RETRY_TIME_MS: 900000, // The time in ms between each retry (15 minutes)
+const DEFAULTS = {
+  // === Index defaults
+  retryCount: 10, // The total number of times we will retry per service to download bins
+  retryTimeMs: 900000, // The time in ms between each retry (15 minutes)
+  // === GitHub Bins defaults
+  githubOrg: "pulsar-edit", // Organization Name to search for bins within
+  githubRepo: "pulsar", // Repository Name to search for bins within
+  githubActionName: "Build Pulsar Binaries", // The workflow name who will have
+  // the built binaries as artifacts in GitHub
+  githubArtifactsToDownload: [
+    "macos-12 Binaries",
+    "ubuntu-latest Binaries",
+    "windows-latest Binaries"
+  ], // ^^ Names of the Artifacts we want to download from GitHub
+  // === CirrusCI Bins defaults
+  cirrusRepoID: "6483909499158528", // The repository ID on Cirrus. 'pulsar-edit/pulsar' by default
 };
 
 wrapper({
@@ -23,6 +44,13 @@ wrapper({
     { name: "releasePrLink", type: String },
     { name: "githubAuthToken", type: String },
     { name: "tag", type: String },
+    { name: "retryCount", type: Number, defaultValue: DEFAULTS.retryCount },
+    { name: "retryTimeMs", type: Number, defaultValue: DEFAULTS.retryTimeMs },
+    { name: "githubOrg", type: String, defaultValue: DEFAULTS.githubOrg },
+    { name: "githubRepo", type: String, defaultValue: DEFAULTS.githubRepo },
+    { name: "githubActionName", type: String, defaultValue: DEFAULTS.githubActionName },
+    { name: "githubArtifactsToDownload", type: String, multiple: true, defaultValue: DEFAULTS.githubArtifactsToDownload },
+    { name: "cirrusRepoID", type: String, defaultValue: DEFAULTS.cirrusRepoID },
   ],
   startMsg: "Begin searching for bins...",
   successMsg: "Successfully saved all bins.",
@@ -45,8 +73,8 @@ async function controller(opts) {
       // Providing a function here so we can pass our opts
       return await getGitHubBins(opts);
     },
-    CONSTANTS.RETRY_COUNT,
-    CONSTANTS.RETRY_TIME_MS
+    opts.retryCount,
+    opts.retryTimeMs
   );
 
   // Then lets grab CirrusCI Bins
@@ -56,8 +84,8 @@ async function controller(opts) {
       // Providing a function here so we can pass our opts
       return await getCirrusCiBins(opts);
     },
-    CONSTANTS.RETRY_COUNT,
-    CONSTANTS.RETRY_TIME_MS
+    opts.retryCount,
+    opts.retryTimeMs
   );
 
   // After these steps we should ideally have a directory (saveLoc) with the following data:
