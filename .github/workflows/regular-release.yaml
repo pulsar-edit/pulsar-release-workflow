@@ -43,9 +43,8 @@ jobs:
       run: node ./removeDevFromVersion --packageLocation "pulsar/package.json"
 
     - name: Bump Pulsar Version
-      run: |
-        cd pulsar
-        npm version minor
+      run: npm version minor
+      working-directory: pulsar
 
     - name: Commit changes
       run: git commit -m "Update Version"
@@ -94,19 +93,16 @@ jobs:
     - name: Move all bins into the top level directory
       # Since the binaries are downloaded into sub folders based on category
       # we first need to move them all up into the current directory
-      run: |
-        cd ${{ env.binaryDir }}
-        mv */* .
+      run: mv */* .
+      working-directory: ${{ env.binaryDir }}
 
     - name: Delete all empty subdirectories (Which all should be)
-      run: |
-        cd ${{ env.binaryDir }}
-        find . -type d -empty -delete
+      run: find . -type d -empty -delete
+      working-directory: ${{ env.binaryDir }}
 
     - name: Generate SHASUMS file
-      run: |
-        cd ${{ env.binaryDir }}
-        sha256sum * | tee SHA256SUMS.txt
+      run: sha256sum * | tee SHA256SUMS.txt
+      working-directory: ${{ env.binaryDir }}
 
   publish-bins:
     runs-on: ubuntu-latest
