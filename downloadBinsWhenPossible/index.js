@@ -5,10 +5,12 @@
     * saveLoc: The location to save all bins to
     * releasePrLink: The URL of the release PR
     * githubAuthToken: A GitHub Auth Token for repository access
+    * tag: The tag string used on GitHub for this release
 */
 
 const wrapper = require("../wrapper/async.js");
 const getGitHubBins = require("./getGitHubBins.js");
+const getCirrusCiBins = require("./getCirrusCiBins.js");
 
 const CONSTANTS = {
   RETRY_COUNT: 10, // The total number of times we will retry per service to download bins
@@ -19,7 +21,8 @@ wrapper({
   opts: [
     { name: "saveLoc", type: String },
     { name: "releasePrLink", type: String },
-    { name: "githubAuthToken", type: String }
+    { name: "githubAuthToken", type: String },
+    { name: "tag", type: String },
   ],
   startMsg: "Begin searching for bins...",
   successMsg: "Successfully saved all bins.",
@@ -41,6 +44,17 @@ async function controller(opts) {
       // This is the function that will be retried over and over
       // Providing a function here so we can pass our opts
       return await getGitHubBins(opts);
+    },
+    CONSTANTS.RETRY_COUNT,
+    CONSTANTS.RETRY_TIME_MS
+  );
+
+  // Then lets grab CirrusCI Bins
+  await retryOnFailure(
+    async () => {
+      // This is the function to retry over and over
+      // Providing a function here so we can pass our opts
+      return await getCirrusCiBins(opts);
     },
     CONSTANTS.RETRY_COUNT,
     CONSTANTS.RETRY_TIME_MS

@@ -74,4 +74,5 @@ jobs:
         node ./downloadBinsWhenPossible \
           --saveLoc "pulsar-bins" \
           --releasePrLink ${{ env.releasePrLink }} \
-          --githubAuthToken ${{ SECRETS.TODO }}
+          --githubAuthToken ${{ SECRETS.TODO }} \
+          --tag v${{ env.nextPulsarVersion }}

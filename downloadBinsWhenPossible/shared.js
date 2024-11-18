@@ -33,7 +33,7 @@ module.exports = {
       process.stdout.write("Progress: 100%");
       console.log("\n");
       const completedTime = performance.now();
-      console.log(`Download took: '${parseFloat((completedTime - startTime)*1000).toFixed(2)}s'`)
+      console.log(`Download took: '${parseFloat((completedTime - startTime)/1000).toFixed(2)}s'`)
     });
 
     while(!completed) {

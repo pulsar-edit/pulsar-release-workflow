@@ -9,7 +9,7 @@
       * Conclusion: Success
       * Name: Matches `CONSTANTS.ACTION_NAME`
     - Download ZIP bins from workflow
-    - Extract those bins into the proper location
+    - Extract those bins into the location provided.
 */
 
 const fs = require("fs");

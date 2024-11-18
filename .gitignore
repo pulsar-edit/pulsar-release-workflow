@@ -1,5 +1,7 @@
 node_modules
 # Default location of in progress zip files
 temp
-# Default location for unzipped files
+# Default location for unzipped files while testing
 zips
+# Default location for unzipped files in production
+pulsar-bins
