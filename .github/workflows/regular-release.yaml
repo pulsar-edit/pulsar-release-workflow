@@ -13,16 +13,22 @@ jobs:
   tag-new-release:
     runs-on: ubuntu-latest
     steps:
-    - name: Clone the pulsar-edit/pulsar repository
-      run: git clone https://github.com/pulsar-edit/pulsar pulsar
-
     - name: Setup NodeJS
       uses: actions/setup-node@v4
       with:
         node-version: latest
 
+    - name: Checkout this Repository
+      uses: actions/checkout@v4
+
+    - name: Install this repositories Dependencies
+      run: npm install
+
     - name: Setup Git User
       run: echo "TODO" # Stuff & Things?? TODO
+
+    - name: Clone the pulsar-edit/pulsar repository
+      run: git clone https://github.com/pulsar-edit/pulsar pulsar
 
     - name: Find new Version
       run: |
@@ -61,11 +67,18 @@ jobs:
 
   manage-bins:
     runs-on: ubuntu-latest
+    needs: tag-new-release
     steps:
     - name: Setup NodeJS
       uses: actions/setup-node@v4
       with:
         node-version: latest
+
+    - name: Checkout this Repository
+      uses: actions/checkout@v4
+
+    - name: Install this repositories Dependencies
+      run: npm install
 
     - name: Setup Git User
       run: echo "TODO" # Stuff & Things?? TODO
@@ -94,3 +107,28 @@ jobs:
       run: |
         cd ${{ env.binaryDir }}
         sha256sum * | tee SHA256SUMS.txt
+
+  publish-bins:
+    runs-on: ubuntu-latest
+    needs: manage-bins
+    steps:
+    - name: Setup NodeJS
+      uses: actions/setup-node@v4
+      with:
+        node-version: latest
+
+    - name: Checkout this Repository
+      uses: actions/checkout@v4
+
+    - name: Install this repositories Dependencies
+      run: npm install
+
+    - name: Setup Git User
+      run: echo "TODO" # Stuff & Things?? TODO
+
+    - name: Create Release & Upload all Bins
+      run: |
+        node ./createReleaseAndUploadBins \
+          --binLoc ${{ env.binaryDir }} \
+          --version v${{ env.nextPulsarVersion }} \
+          --githubAuthToken ${{ SECRETS.TODO }}
