@@ -1,8 +1,10 @@
 /*
-  Adds the `-dev` build identifier to the version field in a `package.json`.
+  Removes the provided (default "-dev") build identifier from the version field in a `package.json`.
 
   Arguments:
     * packageLocation: The location of the affected `package.json`
+  Optional Arguments:
+    * buildID: ("-dev") The Build Identifier to remove
 */
 
 const fs = require("fs");
@@ -10,7 +12,8 @@ const wrapper = require("../wrapper");
 
 wrapper({
   opts: [
-    { name: "packageLocation", type: String }
+    { name: "packageLocation", type: String },
+    { name: "buildID", type: String, defaultValue: "-dev" },
   ],
   startMsg: "Starting the re-version process...",
   successMsg: "Changed Version and Saved File.",
@@ -21,7 +24,7 @@ wrapper({
 
     const originalVersion = packageJSON.version;
 
-    packageJSON.version = originalVersion + "-dev",
+    packageJSON.version = originalVersion.replace(opts.buildID, "");
 
     fs.writeFileSync(opts.packageLocation, JSON.stringify(packageJSON, null, 2), { encoding: "utf8" });
 
