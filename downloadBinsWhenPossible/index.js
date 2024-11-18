@@ -60,6 +60,33 @@ async function controller(opts) {
     CONSTANTS.RETRY_TIME_MS
   );
 
+  // After these steps we should ideally have a directory (saveLoc) with the following data:
+  /*
+    - arm_linux
+      * ARM.Linux.pulsar_1.122.0_arm64.deb
+      * ARM.Linux.Pulsar-1.122.0-arm64.AppImage
+      * ARM.Linux.pulsar-1.122.0-arm64.tag.gz
+      * ARM.Linux.pulsar-1.122.0.aarch64.rpm
+    - macos12
+      * Pulsar-1.122.0-mac.zip
+      * Pulsar-1.122.0-mac.zip.blockmap
+      * Pulsar-1.122.0.dmg
+      * Pulsar-1.122.0.dmg.blockmap
+    - silicon_mac
+      * Silicon.Mac.Pulsar-1.122.0-arm64.zip
+      * Silicon.Mac.Pulsar-1.122.0-arm64-mac.zip.blockmap
+      * Silicon.Mac.Pulsar-1.122.0-arm64.dmg
+      * Silicon.Mac.Pulsar-1.122.0-arm64.dmg.blockmap
+    - ubuntulatest
+      * pulsar_1.122.0_amd64.deb
+      * Pulsar-1.122.0.AppImage
+      * pulsar-1.122.0.tar.gz
+      * pulsar-1.122.0.x86_64.rpm
+    - windowslatest
+      * Windows.Pulsar-1.122.0-win.zip
+      * Windows.Pulsar.Setup.1.122.0.exe
+  */
+
 }
 
 async function retryOnFailure(retryFn, retryCount, retryTimeMs) {
