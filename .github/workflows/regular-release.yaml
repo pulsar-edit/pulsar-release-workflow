@@ -1,4 +1,4 @@
-name: Automated Regular Release
+name: Automated Regular Release (Full)
 
 on:
   workflow_dispatch:
@@ -10,9 +10,10 @@ env:
   binaryDir: "pulsar-bins" # The directory that should contain finalized binaries
 
 jobs:
-  tag-new-release:
+  full-regular-release:
     runs-on: ubuntu-latest
     steps:
+    #### Setup
     - name: Setup NodeJS
       uses: actions/setup-node@v4
       with:
@@ -27,8 +28,12 @@ jobs:
     - name: Setup Git User
       run: echo "TODO" # Stuff & Things?? TODO
 
+    #### Tag New Release
     - name: Clone the pulsar-edit/pulsar repository
-      run: git clone https://github.com/pulsar-edit/pulsar pulsar
+      uses: actions/checkout@v4
+      with:
+        repository: pulsar-edit/pulsar
+        path: pulsar
 
     - name: Find new Version
       run: |
@@ -64,24 +69,7 @@ jobs:
     - name: Push tag to remote
       run: git push origin v${{ env.nextPulsarVersion }}
 
-  manage-bins:
-    runs-on: ubuntu-latest
-    needs: tag-new-release
-    steps:
-    - name: Setup NodeJS
-      uses: actions/setup-node@v4
-      with:
-        node-version: latest
-
-    - name: Checkout this Repository
-      uses: actions/checkout@v4
-
-    - name: Install this repositories dependencies
-      run: npm install
-
-    - name: Setup Git User
-      run: echo "TODO" # Stuff & Things?? TODO
-
+    #### Manage Bins
     - name: Download bins as they become available
       run: |
         node ./downloadBinsWhenPossible \
@@ -104,24 +92,7 @@ jobs:
       run: sha256sum * | tee SHA256SUMS.txt
       working-directory: ${{ env.binaryDir }}
 
-  publish-bins:
-    runs-on: ubuntu-latest
-    needs: manage-bins
-    steps:
-    - name: Setup NodeJS
-      uses: actions/setup-node@v4
-      with:
-        node-version: latest
-
-    - name: Checkout this Repository
-      uses: actions/checkout@v4
-
-    - name: Install this repositories dependencies
-      run: npm install
-
-    - name: Setup Git User
-      run: echo "TODO" # Stuff & Things?? TODO
-
+    #### Publish Bins
     - name: Create Release & Upload all Bins
       run: |
         node ./createReleaseAndUploadBins \
@@ -129,34 +100,8 @@ jobs:
           --version v${{ env.nextPulsarVersion }} \
           --githubAuthToken ${{ SECRETS.TODO }}
 
-  cleanup:
-    runs-on: ubuntu-latest
-    needs: publish-bins
-    steps:
-    - name: Setup NodeJS
-      uses: actions/setup-node@v4
-      with:
-        node-version: latest
-
-    - name: Checkout this Repository
-      uses: actions/checkout@v4
-
-    - name: Install this repositories dependencies
-      run: npm install
-
-    - name: Setup Git User
-      run: echo "TODO" # Stuff & Things?? TODO
-
-    - name: Clone the pulsar-edit/pulsar repository
-      run: git clone https://github.com/pulsar-edit/pulsar pulsar
-
-    - name: Checkout the release branch
-      run: git fetch v${{ env.nextPulsarVersion }}-release
-
-    - name: Switch to the release branch
-      run: git checkout v${{ env.nextPulsarVersion }}-release
-
-    - name: Add 'package.json' build identifier
+    #### Cleanup
+    - name: Add back 'package.json' build identifier
       run: |
         node ./addDevToVersion \
           --packageLocation "pulsar/package.json"
