@@ -170,3 +170,5 @@ jobs:
 
     - name: Push Branch to Remote
       run: git push -u origin v${{ env.nextPulsarVersion }}-release
+
+    # TODO Do we want to auto-close the PR created?
