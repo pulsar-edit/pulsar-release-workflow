@@ -1,6 +1,6 @@
-# This GitHub Action Workflow will handle a **COMPLETE** Regular Release.
-# Handling all aspects possible of the release itself.
-name: Automated Regular Release (Full)
+# This GitHub Action Workflow will **ONLY** download completed bins and upload them
+# to a release, while creating said release.
+name: Manage Bins
 
 on:
   workflow_dispatch:
@@ -8,11 +8,11 @@ on:
 env:
   # Variables needed
   nextPulsarVersion: "null" # Set by 'findNextPulsarVersion' script
-  releasePrLink: "null" # Set via CLI in 'Create GitHub Pull Request'
   binaryDir: "pulsar-bins" # The directory that should contain finalized binaries
+  releasePrLink: "null" # ISNT AUTO SET. **MUST** BE MANUALLY SET
 
 jobs:
-  full-regular-release:
+  manage-bins:
     runs-on: ubuntu-latest
     steps:
     #### Setup
@@ -30,7 +30,7 @@ jobs:
     - name: Setup Git User
       run: echo "TODO" # Stuff & Things?? TODO
 
-    #### Tag New Release
+    #### Get the new Version
     - name: Clone the pulsar-edit/pulsar repository
       uses: actions/checkout@v4
       with:
@@ -42,34 +42,6 @@ jobs:
         node ./findNextPulsarVersion \
           --packageLocation "pulsar/package.json" \
           --envVarOutput "nextPulsarVersion"
-
-    - name: Create new branch under new version
-      run: git switch -c v${{ env.nextPulsarVersion }}-release origin/master
-
-    - name: Remove 'package.json' version build identifier
-      run: node ./removeBuildIdFromVersion --packageLocation "pulsar/package.json"
-
-    - name: Bump Pulsar Version
-      run: npm version minor
-      working-directory: pulsar
-
-    - name: Commit changes
-      run: git commit -m "Update Version"
-
-    - name: Tag changes
-      run: git tag v${{ env.nextPulsarVersion }}
-
-    - name: Push Branch to Remote
-      run: git push -u origin v${{ env.nextPulsarVersion }}-release
-
-    - name: Create GitHub Pull Request
-      run: |
-        gh pr create \
-          --title "v${{ env.nextPulsarVersion }} Release" \
-          --body "Automated Regular Release" >> $env:releasePrLink
-
-    - name: Push tag to remote
-      run: git push origin v${{ env.nextPulsarVersion }}
 
     #### Manage Bins
     - name: Download bins as they become available
@@ -101,17 +73,3 @@ jobs:
           --binLoc ${{ env.binaryDir }} \
           --version v${{ env.nextPulsarVersion }} \
           --githubAuthToken ${{ SECRETS.TODO }}
-
-    #### Cleanup
-    - name: Add back 'package.json' build identifier
-      run: |
-        node ./addBuildIdToVersion \
-          --packageLocation "pulsar/package.json"
-
-    - name: Commit these changes
-      run: git commit -m "Add back build identifier"
-
-    - name: Push Branch to Remote
-      run: git push -u origin v${{ env.nextPulsarVersion }}-release
-
-    # TODO Do we want to auto-close the PR created?
