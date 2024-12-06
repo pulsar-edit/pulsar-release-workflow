@@ -40,7 +40,6 @@ jobs:
         git config --global credential.helper store
         echo "https://x-access-token:${{ secrets.AUTH_TOKEN_GITHUB }}@github.com" > ~/.git-credentials
         git status
-      working-directory: pulsar
 
     #### Tag New Release
     - name: Clone the pulsar-edit/pulsar repository
