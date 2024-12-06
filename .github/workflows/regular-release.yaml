@@ -13,6 +13,7 @@ env:
   #releaseType: "minor" # The type of bump we are doing during a release. "minor"
                        # the default for Pulsar, as we don't bump major ever
   releaseType: "patch"
+  GH_TOKEN: ${{ secrets.AUTH_TOKEN_GITHUB }} # Set our secret auth token for `gh` CLI to use
 
 jobs:
   full-regular-release:
