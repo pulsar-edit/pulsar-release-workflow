@@ -31,13 +31,17 @@ wrapper({
     const packageJSON = JSON.parse(fs.readFileSync(opts.packageLocation, { encoding: "utf8" }));
 
     let version = packageJSON.version;
+    console.debug(`package.json: ${version}`);
 
     version = version.replace("-dev", "");
+    console.debug(`replace: ${version}`);
 
     version = semver.inc(version, opts.bumpType);
+    console.debug(`semver.inc(): ${version}`);
 
     core.exportVariable(opts.envVarOutput, version);
 
     console.log(`Output version '${version}' to '${opts.envVarOutput}' environment variable.`);
+    process.exit(1); // debug fail
   }
 });
