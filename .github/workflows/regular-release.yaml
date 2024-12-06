@@ -35,8 +35,8 @@ jobs:
     - name: Setup Git User
       run: |
         git --version
-        git config user.name "Pulsar-Edit Bot"
-        git config user.email "<no-reply@users-github.com>"
+        git config --global user.name "Pulsar-Edit Bot"
+        git config --global user.email "<no-reply@users-github.com>"
         git config --global credential.helper store
         echo "https://x-access-token:${{ secrets.AUTH_TOKEN_GITHUB }}@github.com" > ~/.git-credentials
         git status
