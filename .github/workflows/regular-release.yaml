@@ -39,8 +39,6 @@ jobs:
         git --version
         git config --global user.name "Pulsar-Edit Bot"
         git config --global user.email "<no-reply@users-github.com>"
-        git remote set-url origin https://${{ env.AUTH_TOKEN_GITHUB }}@github.com/pulsar-edit/pulsar.git/
-        git status
 
     #### Tag New Release
     - name: Clone the pulsar-edit/pulsar repository
@@ -48,6 +46,7 @@ jobs:
       with:
         repository: pulsar-edit/pulsar
         path: pulsar
+        token: ${{ env.AUTH_TOKEN_GITHUB }}
 
     - name: Find new Version
       run: |
