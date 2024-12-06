@@ -88,6 +88,12 @@ jobs:
         echo "releasePrLink=$(echo $GhPrCreateOutput)" >> $GITHUB_ENV
       working-directory: pulsar
 
+    - name: Wait, to ensure Cirrus receives the PR build **BEFORE** the tag build
+      run: |
+        echo "Sleep for 3 minutes to allow CirrusCI to wake up"
+        sleep 180
+        echo "Time to wake up!"
+
     - name: Push tag to remote
       run: git push origin v${{ env.nextPulsarVersion }}
       working-directory: pulsar
