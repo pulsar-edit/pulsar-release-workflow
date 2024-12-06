@@ -10,8 +10,9 @@ env:
   nextPulsarVersion: "null" # Set by 'findNextPulsarVersion' script
   releasePrLink: "null" # Set via CLI in 'Create GitHub Pull Request'
   binaryDir: "pulsar-bins" # The directory that should contain finalized binaries
-  releaseType: "minor" # The type of bump we are doing during a release. "minor"
+  #releaseType: "minor" # The type of bump we are doing during a release. "minor"
                        # the default for Pulsar, as we don't bump major ever
+  releaseType: "patch"
 
 jobs:
   full-regular-release:
