@@ -61,9 +61,9 @@ jobs:
       working-directory: pulsar
 
     - name: Bump Pulsar Version
-      run: npm version ${{ env.releaseType }}
+      run: npm --no-git-tag-version version ${{ env.releaseType }}
       working-directory: pulsar
-      
+
     - name: Remove 'package.json' version build identifier
       run: node ./removeBuildIdFromVersion --packageLocation "pulsar/package.json"
 
