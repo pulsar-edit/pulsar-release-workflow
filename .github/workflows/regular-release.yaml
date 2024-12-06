@@ -55,7 +55,6 @@ jobs:
           --packageLocation "pulsar/package.json" \
           --envVarOutput "nextPulsarVersion" \
           --bumpType ${{ env.releaseType }}
-        echo "DEBUG: nextPulsarVersion: ${{ env.nextPulsarVersion }}"
 
     - name: Create new branch under new version
       run: git switch -c v${{ env.nextPulsarVersion }}-release origin/master
@@ -87,7 +86,6 @@ jobs:
           --title "v${{ env.nextPulsarVersion }} Release" \
           --body "Automated Regular Release")"
         echo "releasePrLink=$(echo $GhPrCreateOutput)" >> $GITHUB_ENV
-        echo "DEBUG: releasePrLink: ${{ env.releasePrLink }}"
       working-directory: pulsar
 
     - name: Push tag to remote
