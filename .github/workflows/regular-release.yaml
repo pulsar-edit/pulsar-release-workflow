@@ -46,7 +46,7 @@ jobs:
       with:
         repository: pulsar-edit/pulsar
         path: pulsar
-        token: ${{ env.AUTH_TOKEN_GITHUB }}
+        token: ${{ secrets.AUTH_TOKEN_GITHUB }}
 
     - name: Find new Version
       run: |
