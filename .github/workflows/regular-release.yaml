@@ -67,7 +67,9 @@ jobs:
           --version ${{ env.nextPulsarVersion }}
 
     - name: Commit changes
-      run: git commit -m "Update Version"
+      run: |
+        git add package.json
+        git commit -m "Update Version"
       working-directory: pulsar
 
     - name: Tag changes
@@ -128,7 +130,9 @@ jobs:
           --packageLocation "pulsar/package.json"
 
     - name: Commit these changes
-      run: git commit -m "Add back build identifier"
+      run: |
+        git add package.json
+        git commit -m "Add back build identifier"
       working-directory: pulsar
 
     - name: Push Branch to Remote
