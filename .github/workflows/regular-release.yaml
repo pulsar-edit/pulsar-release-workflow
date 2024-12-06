@@ -39,8 +39,7 @@ jobs:
         git --version
         git config --global user.name "Pulsar-Edit Bot"
         git config --global user.email "<no-reply@users-github.com>"
-        git config --global credential.helper store
-        echo "https://x-access-token:${{ secrets.AUTH_TOKEN_GITHUB }}@github.com" > ~/.git-credentials
+        git remote add origin https://${{ env.AUTH_TOKEN_GITHUB }}@github.com/pulsar-edit/pulsar.git/
         git status
 
     #### Tag New Release
