@@ -15,6 +15,7 @@
 */
 
 const fs = require("fs");
+const path = require("path");
 const publish = require("publish-release");
 const wrapper = require("../wrapper");
 
@@ -35,6 +36,12 @@ wrapper({
 
     console.log(`Publishing release for '${opts.version}' with the below assets:`);
     console.log(binaryAssets);
+
+    // Ensure that `publish-release` can find the assets we provide, by adding
+    // the full path
+    for (const idx in binaryAssets) {
+      binaryAssets[idx] = path.resolve(path.join(opts.binLoc, binaryAssets[idx]));
+    }
 
     publish({
       token: opts.githubAuthToken,
