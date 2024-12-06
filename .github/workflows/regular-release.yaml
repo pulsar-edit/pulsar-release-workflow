@@ -40,6 +40,7 @@ jobs:
         git config --global credential.helper store
         echo "https://x-access-token:${{ secrets.AUTH_TOKEN_GITHUB }}@github.com" > ~/.git-credentials
         git status
+      working-directory: pulsar
 
     #### Tag New Release
     - name: Clone the pulsar-edit/pulsar repository
@@ -54,10 +55,11 @@ jobs:
           --packageLocation "pulsar/package.json" \
           --envVarOutput "nextPulsarVersion" \
           --bumpType #{{ env.releaseType }}
-        echo "DEBUG: releaseType: ${{ env.releaseType }}"
+        echo "DEBUG: nextPulsarVersion: ${{ env.nextPulsarVersion }}"
 
     - name: Create new branch under new version
       run: git switch -c v${{ env.nextPulsarVersion }}-release origin/master
+      working-directory: pulsar
 
     - name: Remove 'package.json' version build identifier
       run: node ./removeBuildIdFromVersion --packageLocation "pulsar/package.json"
@@ -68,12 +70,15 @@ jobs:
 
     - name: Commit changes
       run: git commit -m "Update Version"
+      working-directory: pulsar
 
     - name: Tag changes
       run: git tag v${{ env.nextPulsarVersion }}
+      working-directory: pulsar
 
     - name: Push Branch to Remote
       run: git push -u origin v${{ env.nextPulsarVersion }}-release
+      working-directory: pulsar
 
     - name: Create GitHub Pull Request
       run: |
@@ -81,9 +86,11 @@ jobs:
           --title "v${{ env.nextPulsarVersion }} Release" \
           --body "Automated Regular Release" >> $env:releasePrLink
         echo "DEBUG: releasePrLink: ${{ env.releasePrLink }}"
+      working-directory: pulsar
 
     - name: Push tag to remote
       run: git push origin v${{ env.nextPulsarVersion }}
+      working-directory: pulsar
 
     #### Manage Bins
     - name: Download bins as they become available
@@ -124,8 +131,10 @@ jobs:
 
     - name: Commit these changes
       run: git commit -m "Add back build identifier"
+      working-directory: pulsar
 
     - name: Push Branch to Remote
       run: git push -u origin v${{ env.nextPulsarVersion }}-release
+      working-directory: pulsar
 
     # TODO Do we want to auto-close the PR created?
