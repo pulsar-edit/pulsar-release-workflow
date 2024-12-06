@@ -53,7 +53,7 @@ jobs:
         node ./findNextPulsarVersion \
           --packageLocation "pulsar/package.json" \
           --envVarOutput "nextPulsarVersion" \
-          --bumpType #{{ env.releaseType }}
+          --bumpType ${{ env.releaseType }}
         echo "DEBUG: nextPulsarVersion: ${{ env.nextPulsarVersion }}"
 
     - name: Create new branch under new version
