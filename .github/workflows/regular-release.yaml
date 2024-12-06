@@ -17,6 +17,8 @@ env:
 jobs:
   full-regular-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
     #### Setup
     - name: Setup NodeJS
