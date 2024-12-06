@@ -39,7 +39,7 @@ jobs:
         git --version
         git config --global user.name "Pulsar-Edit Bot"
         git config --global user.email "<no-reply@users-github.com>"
-        git remote add origin https://${{ env.AUTH_TOKEN_GITHUB }}@github.com/pulsar-edit/pulsar.git/
+        git remote set-url origin https://${{ env.AUTH_TOKEN_GITHUB }}@github.com/pulsar-edit/pulsar.git/
         git status
 
     #### Tag New Release
