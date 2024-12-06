@@ -10,6 +10,8 @@ env:
   nextPulsarVersion: "null" # Set by 'findNextPulsarVersion' script
   releasePrLink: "null" # Set via CLI in 'Create GitHub Pull Request'
   binaryDir: "pulsar-bins" # The directory that should contain finalized binaries
+  releaseType: "minor" # The type of bump we are doing during a release. "minor"
+                       # the default for Pulsar, as we don't bump major ever
 
 jobs:
   full-regular-release:
@@ -23,12 +25,20 @@ jobs:
 
     - name: Checkout this Repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: '0'
 
     - name: Install this repositories dependencies
       run: npm install
 
     - name: Setup Git User
-      run: echo "TODO" # Stuff & Things?? TODO
+      run: |
+        git --version
+        git config user.name "Pulsar-Edit Bot"
+        git config user.email "<no-reply@users-github.com>"
+        git config --global credential.helper store
+        echo "https://x-access-token:${{ secrets.AUTH_TOKEN_GITHUB }}@github.com" > ~/.git-credentials
+        git status
 
     #### Tag New Release
     - name: Clone the pulsar-edit/pulsar repository
@@ -41,7 +51,8 @@ jobs:
       run: |
         node ./findNextPulsarVersion \
           --packageLocation "pulsar/package.json" \
-          --envVarOutput "nextPulsarVersion"
+          --envVarOutput "nextPulsarVersion" \
+          --bumpType #{{ env.releaseType }}
 
     - name: Create new branch under new version
       run: git switch -c v${{ env.nextPulsarVersion }}-release origin/master
@@ -50,7 +61,7 @@ jobs:
       run: node ./removeBuildIdFromVersion --packageLocation "pulsar/package.json"
 
     - name: Bump Pulsar Version
-      run: npm version minor
+      run: npm version ${{ env.releaseType }}
       working-directory: pulsar
 
     - name: Commit changes
@@ -77,7 +88,7 @@ jobs:
         node ./downloadBinsWhenPossible \
           --saveLoc ${{ env.binaryDir }} \
           --releasePrLink ${{ env.releasePrLink }} \
-          --githubAuthToken ${{ SECRETS.TODO }} \
+          --githubAuthToken ${{ secrets.AUTH_TOKEN_GITHUB }} \
           --tag v${{ env.nextPulsarVersion }}
 
     - name: Move all bins into the top level directory
@@ -100,7 +111,7 @@ jobs:
         node ./createReleaseAndUploadBins \
           --binLoc ${{ env.binaryDir }} \
           --version v${{ env.nextPulsarVersion }} \
-          --githubAuthToken ${{ SECRETS.TODO }}
+          --githubAuthToken ${{ secrets.AUTH_TOKEN_GITHUB }}
 
     #### Cleanup
     - name: Add back 'package.json' build identifier
