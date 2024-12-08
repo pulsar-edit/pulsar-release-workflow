@@ -50,7 +50,7 @@ wrapper({
       name: opts.version,
       notes: opts.notes,
       tag: opts.version,
-      draft: false,
+      draft: true,
       prerelease: false,
       editRelease: true,
       reuseRelease: true,
