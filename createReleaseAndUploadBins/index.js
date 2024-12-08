@@ -16,8 +16,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const publish = require("publish-release");
-const wrapper = require("../wrapper");
+const wrapper = require("../wrapper/async.js");
 
 wrapper({
   opts: [
@@ -31,7 +30,13 @@ wrapper({
   startMsg: "Starting the release creation and bin upload process...",
   successMsg: "Successfully created the release and added bins.",
   failMsg: "There was an error when creating the release!",
-  run: (opts) => {
+  run: async (opts) => {
+    const mime = await import("mime").then(mime => mime.default); // ESM export only
+    const Octokit = await import("octokit").then(octo => octo.Octokit); // ESM export only
+    const octokit = new Octokit({
+      auth: opts.githubAuthToken
+    });
+
     const binaryAssets = fs.readdirSync(opts.binLoc);
 
     console.log(`Publishing release for '${opts.version}' with the below assets:`);
@@ -43,31 +48,38 @@ wrapper({
       binaryAssets[idx] = path.resolve(path.join(opts.binLoc, binaryAssets[idx]));
     }
 
-    publish({
-      token: opts.githubAuthToken,
+    // Create a release
+    const releaseCreate = await octokit.request("POST /repos/{owner}/{repo}/releases", {
       owner: opts.owner,
       repo: opts.repo,
+      tag_name: opts.version,
       name: opts.version,
-      notes: opts.notes,
-      tag: opts.version,
+      body: opts.notes,
       draft: true,
       prerelease: false,
-      editRelease: true,
-      reuseRelease: true,
-      skipIfPublished: false,
-      assets: binaryAssets
-    }, (err, release) => {
-      if (err) {
-        throw err;
-      }
-
-      if (typeof release?.html_url !== "string") {
-        console.error("No 'html_url' found on release object!");
-        throw new Error(release);
-      } else {
-        console.log(`Release published successfully: ${release.html_url}`);
-      }
-
+      generate_release_notes: false
     });
+
+    // Then upload assets
+    for (const asset of binaryAssets) {
+      const assetName = path.basename(asset);
+      const assetStat = fs.statSync(asset);
+
+      console.log(`Attempting to upload asset '${assetName}'`);
+
+      const uploadAsset = await octokit.request({
+        method: "POST",
+        url: releaseCreate.data.upload_url,
+        headers: {
+          "Content-Type": mime.getType(assetName),
+          "Content-Length": assetStat.size,
+          "User-Agent": "pulsar-bot"
+        },
+        data: fs.createReadStream(asset),
+        name: assetName,
+      });
+
+      console.log(`The asset '${assetName}' has been '${uploadAsset.data.state}'`);
+    }
   }
 });
