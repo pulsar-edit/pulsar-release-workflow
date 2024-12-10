@@ -13,7 +13,7 @@ async function reddit(opts) {
 
   const form = new FormData();
   form.append("kind", "link");
-  form.append("sr", "pulsar-edit");
+  form.append("sr", opts.subreddit);
   form.append("title", ""); // Title of Post
   form.append("url", opts.releaseURL);
 

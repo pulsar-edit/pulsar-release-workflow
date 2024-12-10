@@ -10,9 +10,17 @@
 */
 
 const wrapper = require("../wrapper/async.js");
+const reddit = require("./reddit.js");
+
+const DEFAULTS = {
+  // === Reddit Defaults
+  subreddit: "pulsar-edit",
+};
 
 wrapper({
-  opts: [],
+  opts: [
+    { name: "subreddit", type: String, defaultValue: DEFAULTS.subreddit }
+  ],
   startMsg: "",
   successMsg: "",
   failMsg: "",
@@ -20,5 +28,5 @@ wrapper({
 });
 
 async function runner(opts) {
-
+  await reddit(opts);
 }
