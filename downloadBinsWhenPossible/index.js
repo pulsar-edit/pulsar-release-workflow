@@ -30,7 +30,7 @@ const DEFAULTS = {
   githubActionName: "Build Pulsar Binaries", // The workflow name who will have
   // the built binaries as artifacts in GitHub
   githubArtifactsToDownload: [
-    "macos-12 Binaries",
+    "macos-13 Binaries",
     "ubuntu-latest Binaries",
     "windows-latest Binaries"
   ], // ^^ Names of the Artifacts we want to download from GitHub
