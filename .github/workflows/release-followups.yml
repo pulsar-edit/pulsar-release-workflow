@@ -1,0 +1,63 @@
+# This GitHub Action Workflow will handle **ONLY FOLLOWUP** steps to a full
+# Pulsar Regular Release. This should only ever be merged **AFTER** Pulsar's
+# newest version PR has been merged to `master`.
+name: Followup Steps to Regular Release
+
+on:
+  workflow_dispatch:
+
+env:
+  # Variables needed
+  newPulsarVersion: "null" # Set by 'findCurrentPulsarVersion' script
+  GH_TOKEN: ${{ secrets.AUTH_TOKEN_GITHUB }} # Set our secret auth token for `gh` CLI to use
+
+jobs:
+  release-followups:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    #### Setup
+    - name: Setup NodeJS
+      uses: actions/setup-node@v4
+      with:
+        node-version: latest
+
+    - name: Checkout this Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: '0'
+
+    - name: Install this repositories dependencies
+      run: npm install
+
+    ## TODO Do we need a Git User setup?
+
+    #### Find current Pulsar Version
+    - name: Clone the pulsar-edit/pulsar repository
+      uses: actions/checkout@v4
+      with:
+        repository: pulsar-edit/pulsar
+        path: pulsar
+        token: ${{ secrets.AUTH_TOKEN_GITHUB }}
+
+    - name: Find current Version
+      run: |
+        node ./findCurrentPulsarVersion \
+          --packageLocation "pulsar/package.json" \
+          --envVarOutput "newPulsarVersion"
+
+    #### Trigger followup actions in other repositories
+    - name: Trigger Pulsar Chocolatey Release
+      run: |
+        node ./createChocolateyReleaseViaGithubIssue \
+          --version ${{ env.newPulsarVersion }} \
+          --githubAuthToken ${{ env.GH_TOKEN }}
+
+    - name: Trigger Pulsar Documentation Update
+      run: |
+        node ./updateDocumentationRepoViaGithubIssue \
+          --version ${{ env.newPulsarVersion }} \
+          --githubAuthToken ${{ env.GH_TOKEN }}
+
+    ## TODO Integrate main website updating here
