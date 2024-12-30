@@ -10,9 +10,8 @@ env:
   nextPulsarVersion: "null" # Set by 'findNextPulsarVersion' script
   releasePrLink: "null" # Set via CLI in 'Create GitHub Pull Request'
   binaryDir: "pulsar-bins" # The directory that should contain finalized binaries
-  #releaseType: "minor" # The type of bump we are doing during a release. "minor"
+  releaseType: "minor" # The type of bump we are doing during a release. "minor"
                        # the default for Pulsar, as we don't bump major ever
-  releaseType: "minor"
   GH_TOKEN: ${{ secrets.AUTH_TOKEN_GITHUB }} # Set our secret auth token for `gh` CLI to use
 
 jobs:
