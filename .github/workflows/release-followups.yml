@@ -31,7 +31,11 @@ jobs:
     - name: Install this repositories dependencies
       run: npm install
 
-    ## TODO Do we need a Git User setup?
+    - name: Setup Git User
+      run: |
+        git --version
+        git config --global user.name "Pulsar-Edit Bot"
+        git config --global user.email "<no-reply@users-github.com>"
 
     #### Find current Pulsar Version
     - name: Clone the pulsar-edit/pulsar repository
@@ -39,7 +43,7 @@ jobs:
       with:
         repository: pulsar-edit/pulsar
         path: pulsar
-        token: ${{ secrets.AUTH_TOKEN_GITHUB }}
+        token: ${{ env.GH_TOKEN }}
 
     - name: Find current Version
       run: |
@@ -60,4 +64,39 @@ jobs:
           --version ${{ env.newPulsarVersion }} \
           --githubAuthToken ${{ env.GH_TOKEN }}
 
-    ## TODO Integrate main website updating here
+    #### Update Main Website
+    ## TODO Hopefully once the site is migrated this can be done much simplier
+    - name: Clone the `pulsar-edit/pulsar-edit.github.io` repository
+      uses: actions/checkout@v4
+      with:
+        repository: pulsar-edit/pulsar-edit.github.io
+        path: pulsar-web
+        token: ${{ env.GH_TOKEN }}
+
+    - name: Create new pulsar-web branch under newly released version
+      run: git switch -c v${{ env.newPulsarVersion }}-update origin/main
+      working-directory: pulsar-web
+
+    - name: Update Download links
+      run: |
+        node ./updateDownloadLinks \
+          --fileLoc "pulsar-web/docs/download.md" \
+          --version ${{ env.newPulsarVersion }}
+
+    - name: Commit changes
+      run: |
+        git add docs/download.md
+        git commit -m "Update download links"
+      working-directory: pulsar-web
+
+    ## TODO Add the new blog post
+
+    - name: Push Branch to remote
+      run: git push -u origin v${{ env.newPulsarVersion }}-update
+      working-directory: pulsar
+
+    - name: Create GitHub Pull Request
+      run: |
+        gh pr create \
+          --title "v${{ env.newPulsarVersion }} Updates" \
+          --body "Beep. Boop. Done by a bot. Update Pulsar website after a regular release."
