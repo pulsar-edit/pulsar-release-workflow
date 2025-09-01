@@ -54,40 +54,27 @@ jobs:
     #### Trigger followup actions in other repositories
     - name: Trigger Pulsar Chocolatey Release
       run: |
-        node ./createChocolateyReleaseViaGithubIssue \
+        node ./updateRepoViaGithubIssue \
           --version ${{ env.newPulsarVersion }} \
-          --githubAuthToken ${{ env.GH_TOKEN }}
+          --githubAuthToken ${{ env.GH_TOKEN }} \
+          --repo "pulsar-chocolatey" \
+          --label "release"
 
     - name: Trigger Pulsar Documentation Update
       run: |
-        node ./updateDocumentationRepoViaGithubIssue \
+        node ./updateRepoViaGithubIssue \
           --version ${{ env.newPulsarVersion }} \
-          --githubAuthToken ${{ env.GH_TOKEN }}
+          --githubAuthToken ${{ env.GH_TOKEN }} \
+          --repo "documentation" \
+          --label "update-docs"
 
-    #### Update Main Website
-    ## TODO Hopefully once the site is migrated this can be done much simplier
-    - name: Clone the `pulsar-edit/pulsar-edit.github.io` repository
-      uses: actions/checkout@v4
-      with:
-        repository: pulsar-edit/pulsar-edit.github.io
-        path: pulsar-web
-        token: ${{ env.GH_TOKEN }}
-
-    - name: Create new pulsar-web branch under newly released version
-      run: git switch -c v${{ env.newPulsarVersion }}-update origin/main
-      working-directory: pulsar-web
-
-    - name: Update Download links
+    - name: Trigger Pulsar Main Website Update
       run: |
-        node ./updateDownloadLinks \
-          --fileLoc "pulsar-web/docs/download.md" \
-          --version ${{ env.newPulsarVersion }}
-
-    - name: Commit changes
-      run: |
-        git add docs/download.md
-        git commit -m "Update download links"
-      working-directory: pulsar-web
+        node ./updateRepoViaGithubIssue \
+          --version ${{ env.newPulsarVersion }} \
+          --githubAuthToken ${{ env.GH_TOKEN }} \
+          --repo "pulsar-edit.github.io" \
+          --label "update-version"
 
     ## TODO Add the new blog post
 
