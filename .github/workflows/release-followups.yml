@@ -77,13 +77,3 @@ jobs:
           --label "update-version"
 
     ## TODO Add the new blog post
-
-    - name: Push Branch to remote
-      run: git push -u origin v${{ env.newPulsarVersion }}-update
-      working-directory: pulsar
-
-    - name: Create GitHub Pull Request
-      run: |
-        gh pr create \
-          --title "v${{ env.newPulsarVersion }} Updates" \
-          --body "Beep. Boop. Done by a bot. Update Pulsar website after a regular release."
