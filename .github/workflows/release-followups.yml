@@ -9,7 +9,7 @@ on:
 env:
   # Variables needed
   newPulsarVersion: "null" # Set by 'findCurrentPulsarVersion' script
-  GH_TOKEN: ${{ secrets.AUTH_TOKEN_GITHUB }} # Set our secret auth token for `gh` CLI to use
+  GH_ISSUE_TOKEN: ${{ secrets.AUTH_TOKEN_GITHUB_ISSUES }} # Set our secret auth token for `gh` CLI to use
 
 jobs:
   release-followups:
@@ -54,49 +54,26 @@ jobs:
     #### Trigger followup actions in other repositories
     - name: Trigger Pulsar Chocolatey Release
       run: |
-        node ./createChocolateyReleaseViaGithubIssue \
+        node ./updateRepoViaGithubIssue \
           --version ${{ env.newPulsarVersion }} \
-          --githubAuthToken ${{ env.GH_TOKEN }}
+          --githubAuthToken ${{ env.GH_ISSUE_TOKEN }} \
+          --repo "pulsar-chocolatey" \
+          --label "release"
 
     - name: Trigger Pulsar Documentation Update
       run: |
-        node ./updateDocumentationRepoViaGithubIssue \
+        node ./updateRepoViaGithubIssue \
           --version ${{ env.newPulsarVersion }} \
-          --githubAuthToken ${{ env.GH_TOKEN }}
+          --githubAuthToken ${{ env.GH_ISSUE_TOKEN }} \
+          --repo "documentation" \
+          --label "update-docs"
 
-    #### Update Main Website
-    ## TODO Hopefully once the site is migrated this can be done much simplier
-    - name: Clone the `pulsar-edit/pulsar-edit.github.io` repository
-      uses: actions/checkout@v4
-      with:
-        repository: pulsar-edit/pulsar-edit.github.io
-        path: pulsar-web
-        token: ${{ env.GH_TOKEN }}
-
-    - name: Create new pulsar-web branch under newly released version
-      run: git switch -c v${{ env.newPulsarVersion }}-update origin/main
-      working-directory: pulsar-web
-
-    - name: Update Download links
+    - name: Trigger Pulsar Main Website Update
       run: |
-        node ./updateDownloadLinks \
-          --fileLoc "pulsar-web/docs/download.md" \
-          --version ${{ env.newPulsarVersion }}
-
-    - name: Commit changes
-      run: |
-        git add docs/download.md
-        git commit -m "Update download links"
-      working-directory: pulsar-web
+        node ./updateRepoViaGithubIssue \
+          --version ${{ env.newPulsarVersion }} \
+          --githubAuthToken ${{ env.GH_ISSUE_TOKEN }} \
+          --repo "pulsar-edit.github.io" \
+          --label "update-version"
 
     ## TODO Add the new blog post
-
-    - name: Push Branch to remote
-      run: git push -u origin v${{ env.newPulsarVersion }}-update
-      working-directory: pulsar
-
-    - name: Create GitHub Pull Request
-      run: |
-        gh pr create \
-          --title "v${{ env.newPulsarVersion }} Updates" \
-          --body "Beep. Boop. Done by a bot. Update Pulsar website after a regular release."
