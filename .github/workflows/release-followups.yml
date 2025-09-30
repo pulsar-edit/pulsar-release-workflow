@@ -9,7 +9,7 @@ on:
 env:
   # Variables needed
   newPulsarVersion: "null" # Set by 'findCurrentPulsarVersion' script
-  GH_TOKEN: ${{ secrets.AUTH_TOKEN_GITHUB }} # Set our secret auth token for `gh` CLI to use
+  GH_ISSUE_TOKEN: ${{ secrets.AUTH_TOKEN_GITHUB_ISSUES }} # Set our secret auth token for `gh` CLI to use
 
 jobs:
   release-followups:
