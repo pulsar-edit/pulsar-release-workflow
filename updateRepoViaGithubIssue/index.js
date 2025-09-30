@@ -17,6 +17,8 @@
     * body: The body of the new issue. Default: "Beep. Boop. Done by a bot."
 */
 
+const wrapper = require("../wrapper/async.js");
+
 wrapper({
   opts: [
     { name: "githubAuthToken", type: String },
