@@ -23,7 +23,7 @@ Further documentation of this should be created in `pulsar-edit/.github`, but un
   - [`pulsar-edit/pulsar-chocolatey`](https://github.com/pulsar-edit/pulsar-chocolatey)
   - [`pulsar-edit/pulsar-edit.github.io`](https://github.com/pulsar-edit/pulsar-edit.github.io/)
 9) Manually add a blog post to [`pulsar-edit/blogumentation`](https://github.com/pulsar-edit/blogumentation)
-9) Manually post the new release news to all social channels.
+10) Manually post the new release news to all social channels.
 
 ## Steps to Achieve Complete Automation:
 
