@@ -43,7 +43,6 @@ jobs:
       with:
         repository: pulsar-edit/pulsar
         path: pulsar
-        token: ${{ env.GH_TOKEN }}
 
     - name: Find current Version
       run: |
