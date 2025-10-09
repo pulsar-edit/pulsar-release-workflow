@@ -4,14 +4,26 @@ name: Automated Regular Release (Full)
 
 on:
   workflow_dispatch:
+    inputs:
+      releaseType:
+        description: "The semver bump type for this Pulsar release."
+        required: true
+        default: "minor"
+        type: choice
+        options:
+          #- major # Included for completeness, but we NEVER bump Pulsar's major
+          - minor
+          - patch
+          - premajor
+          - preminor
+          - prepatch
+          - prerelease
 
 env:
   # Variables needed
   nextPulsarVersion: "null" # Set by 'findNextPulsarVersion' script
   releasePrLink: "null" # Set via CLI in 'Create GitHub Pull Request'
   binaryDir: "pulsar-bins" # The directory that should contain finalized binaries
-  releaseType: "minor" # The type of bump we are doing during a release. "minor"
-                       # the default for Pulsar, as we don't bump major ever
   GH_TOKEN: ${{ secrets.AUTH_TOKEN_GITHUB }} # Set our secret auth token for `gh` CLI to use
 
 jobs:
@@ -53,7 +65,7 @@ jobs:
         node ./findNextPulsarVersion \
           --packageLocation "pulsar/package.json" \
           --envVarOutput "nextPulsarVersion" \
-          --bumpType ${{ env.releaseType }}
+          --bumpType ${{ inputs.releaseType }}
 
     - name: Create new branch under new version
       run: git switch -c v${{ env.nextPulsarVersion }}-release origin/master
