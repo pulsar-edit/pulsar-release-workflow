@@ -5,6 +5,11 @@ name: Followup Steps to Regular Release
 
 on:
   workflow_dispatch:
+    inputs:
+      baseBranch:
+        description: "The core repository branch this Pulsar release lives on. Leave blank to use the core repository's default branch. Only relevant if a version bump in package.json lives on a non-default (e.g. \"releases\" branch)."
+        required: false
+        type: string
 
 env:
   # Variables needed
@@ -43,6 +48,11 @@ jobs:
       with:
         repository: pulsar-edit/pulsar
         path: pulsar
+
+    - name: Switch to the Specified Branch
+      if: ${{ inputs.baseBranch }}
+      run: git switch ${{ inputs.baseBranch }}
+      working-directory: pulsar
 
     - name: Find current Version
       run: |
