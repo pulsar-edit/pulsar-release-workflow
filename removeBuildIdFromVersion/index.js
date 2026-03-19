@@ -26,7 +26,7 @@ wrapper({
 
     packageJSON.version = originalVersion.replace(opts.buildID, "");
 
-    fs.writeFileSync(opts.packageLocation, JSON.stringify(packageJSON, null, 2), { encoding: "utf8" });
+    fs.writeFileSync(opts.packageLocation, JSON.stringify(packageJSON, null, 2) + '\n', { encoding: "utf8" });
 
     console.log(`Changed Version from '${originalVersion}' to '${packageJSON.version}'`);
   }

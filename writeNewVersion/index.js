@@ -21,6 +21,6 @@ wrapper({
   run: (opts) => {
     const packageJSON = JSON.parse(fs.readFileSync(opts.packageLocation, { encoding: "utf8" }));
     packageJSON.version = opts.version;
-    fs.writeFileSync(opts.packageLocation, JSON.stringify(packageJSON, null, 2), { encoding: "utf8" });
+    fs.writeFileSync(opts.packageLocation, JSON.stringify(packageJSON, null, 2) + '\n', { encoding: "utf8" });
   }
 });
