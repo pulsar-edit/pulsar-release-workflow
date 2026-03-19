@@ -57,7 +57,7 @@ async function getGitHubBins(opts) {
 
       if (workflow.name === opts.githubActionName && workflow.event === "push") {
         // We choose `push` because that matches the logic that controls when we
-        // sign a build in GitHub Actions: https://github.com/pulsar-edit/pulsar/blob/master/.github/workflows/build.yml#L133
+        // sign a build in GitHub Actions: https://github.com/pulsar-edit/pulsar/blob/HEAD/.github/workflows/build.yml#L194
         targetWorkflow = workflow;
       }
     }

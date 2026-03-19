@@ -11,7 +11,7 @@
     * notes:
 
   Based almost entirely off work here:
-    https://github.com/pulsar-edit/pulsar/blob/master/script/rolling-release-scripts/rolling-release-binary-upload.js
+    https://github.com/pulsar-edit/pulsar/blob/HEAD/script/rolling-release-scripts/rolling-release-binary-upload.js
 */
 
 const fs = require("fs");
