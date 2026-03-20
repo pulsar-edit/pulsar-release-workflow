@@ -47,12 +47,8 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: pulsar-edit/pulsar
+        ref: ${{ inputs.baseBranch }}
         path: pulsar
-
-    - name: Switch to the Specified Branch
-      if: ${{ inputs.baseBranch }}
-      run: git switch ${{ inputs.baseBranch }}
-      working-directory: pulsar
 
     - name: Find current Version
       run: |
