@@ -100,7 +100,7 @@ jobs:
       run: |
         BASE_OPTION=""
         if [ -n "${{ inputs.baseBranch }}" ]; then
-          BASE_OPTION="--base ${{ inputs.baseBranch }}
+          BASE_OPTION="--base ${{ inputs.baseBranch }}"
         fi
 
         GhPrCreateOutput="$(gh pr create \
