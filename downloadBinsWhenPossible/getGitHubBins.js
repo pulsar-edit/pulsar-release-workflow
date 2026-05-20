@@ -84,6 +84,7 @@ async function getGitHubBins(opts) {
 
   // Now knowing we have a successful, complete, and correct workflow.
   // Lets find our bins from it
+  console.log(`Located valid workflow. Run ID: ${targetWorkflow.id}`);
   const artifacts = await octokit.request("GET /repos/{owner}/{repo}/actions/runs/{run_id}/artifacts", {
     owner: opts.githubOrg,
     repo: opts.githubRepo,
@@ -93,7 +94,7 @@ async function getGitHubBins(opts) {
   // Now with our list of artifacts, lets iterate them and see which ones we want to download
   for (let i = 0; i < artifacts.data.total_count; i++) {
     if (opts.githubArtifactsToDownload.includes(artifacts.data.artifacts[i].name)) {
-      console.log(`Downloading: '${artifacts.data.artifacts[i].name}'`);
+      console.log(`Downloading: '${artifacts.data.artifacts[i].name}'; with Artifact ID: ${artifacts.data.artifacts[i].id}`);
 
       // https://github.com/octokit/request.js/issues/240#issuecomment-825070563
       const artifactDownload = await octokit.request(
