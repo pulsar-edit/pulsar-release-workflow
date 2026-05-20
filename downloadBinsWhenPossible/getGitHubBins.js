@@ -52,7 +52,8 @@ async function getGitHubBins(opts) {
   if (workflows.data.total_count === 1) {
     if (
       workflows.data.workflow_runs[0].name === opts.githubActionName &&
-      workflows.data.workflow_runs[0].event === "push"
+      workflows.data.workflow_runs[0].event === "push" &&
+      workflows.data.workflow_runs[0].conclusion === "success"
     ) {
       targetWorkflow = workflows.data.workflow_runs[0];
     }
@@ -60,7 +61,11 @@ async function getGitHubBins(opts) {
     for (let i = 0; i < workflows.data.total_count; i++) {
       let workflow = workflows.data.workflow_runs[i];
 
-      if (workflow.name === opts.githubActionName && workflow.event === "push") {
+      if (
+        workflow.name === opts.githubActionName &&
+        workflow.event === "push" &&
+        workflow.conclusion === "success"
+      ) {
         // We choose `push` because that matches the logic that controls when we
         // sign a build in GitHub Actions: https://github.com/pulsar-edit/pulsar/blob/HEAD/.github/workflows/build.yml#L194
         targetWorkflow = workflow;
