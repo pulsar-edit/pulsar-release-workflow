@@ -50,7 +50,10 @@ async function getGitHubBins(opts) {
   let targetWorkflow = null;
 
   if (workflows.data.total_count === 1) {
-    if (workflow.name === opts.githubActionName && workflow.event === "push") {
+    if (
+      workflows.data.workflow_runs[0].name === opts.githubActionName &&
+      workflows.data.workflow_runs[0].event === "push"
+    ) {
       targetWorkflow = workflows.data.workflow_runs[0];
     }
   } else {
