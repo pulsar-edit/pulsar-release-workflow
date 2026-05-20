@@ -93,6 +93,9 @@ async function getGitHubBins(opts) {
 
   // Now with our list of artifacts, lets iterate them and see which ones we want to download
   for (let i = 0; i < artifacts.data.total_count; i++) {
+    // TEMP:: Extra Logging for Error troubleshooting
+    console.log(`TEMP: Extra artifact logging: Discovered artifact name: '${artifacts.data.artifacts[i].name}'`);
+    // END TEMP
     if (opts.githubArtifactsToDownload.includes(artifacts.data.artifacts[i].name)) {
       console.log(`Downloading: '${artifacts.data.artifacts[i].name}'; with Artifact ID: ${artifacts.data.artifacts[i].id}`);
 
