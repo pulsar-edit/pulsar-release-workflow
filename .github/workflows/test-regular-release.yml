@@ -112,9 +112,9 @@ jobs:
 
     - name: Wait, to ensure Cirrus receives the PR build **BEFORE** the tag build
       run: |
-        echo "Sleep for 3 minutes to allow CirrusCI to wake up"
-        sleep 180
-        echo "Time to wake up!"
+        echo "Sleep for 45 seconds to allow CirrusCI to wake up"
+        sleep 45
+        echo "Time to wake up! IN TESTING"
 
     - name: Push tag to remote
       run: git push origin v${{ env.nextPulsarVersion }}
