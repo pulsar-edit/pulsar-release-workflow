@@ -50,12 +50,22 @@ async function getGitHubBins(opts) {
   let targetWorkflow = null;
 
   if (workflows.data.total_count === 1) {
-    targetWorkflow = workflows.data.workflow_runs[0];
+    if (
+      workflows.data.workflow_runs[0].name === opts.githubActionName &&
+      workflows.data.workflow_runs[0].event === "push" &&
+      workflows.data.workflow_runs[0].conclusion === "success"
+    ) {
+      targetWorkflow = workflows.data.workflow_runs[0];
+    }
   } else {
     for (let i = 0; i < workflows.data.total_count; i++) {
       let workflow = workflows.data.workflow_runs[i];
 
-      if (workflow.name === opts.githubActionName && workflow.event === "push") {
+      if (
+        workflow.name === opts.githubActionName &&
+        workflow.event === "push" &&
+        workflow.conclusion === "success"
+      ) {
         // We choose `push` because that matches the logic that controls when we
         // sign a build in GitHub Actions: https://github.com/pulsar-edit/pulsar/blob/HEAD/.github/workflows/build.yml#L194
         targetWorkflow = workflow;
@@ -74,6 +84,7 @@ async function getGitHubBins(opts) {
 
   // Now knowing we have a successful, complete, and correct workflow.
   // Lets find our bins from it
+  console.log(`Located valid workflow. Run ID: ${targetWorkflow.id}`);
   const artifacts = await octokit.request("GET /repos/{owner}/{repo}/actions/runs/{run_id}/artifacts", {
     owner: opts.githubOrg,
     repo: opts.githubRepo,
@@ -82,8 +93,11 @@ async function getGitHubBins(opts) {
 
   // Now with our list of artifacts, lets iterate them and see which ones we want to download
   for (let i = 0; i < artifacts.data.total_count; i++) {
+    // TEMP:: Extra Logging for Error troubleshooting
+    console.log(`TEMP: Extra artifact logging: Discovered artifact name: '${artifacts.data.artifacts[i].name}'`);
+    // END TEMP
     if (opts.githubArtifactsToDownload.includes(artifacts.data.artifacts[i].name)) {
-      console.log(`Downloading: '${artifacts.data.artifacts[i].name}'`);
+      console.log(`Downloading: '${artifacts.data.artifacts[i].name}'; with Artifact ID: ${artifacts.data.artifacts[i].id}`);
 
       // https://github.com/octokit/request.js/issues/240#issuecomment-825070563
       const artifactDownload = await octokit.request(
@@ -112,10 +126,16 @@ async function getGitHubBins(opts) {
       console.log(`Stream finished writing '${artifactNameToFileName(artifacts.data.artifacts[i].name)}.zip'`);
 
       // With the response being piped to disk
-      await zl.extract(
-        `./temp/${artifactNameToFileName(artifacts.data.artifacts[i].name)}.zip`,
-        `${opts.saveLoc}/${artifactNameToFileName(artifacts.data.artifacts[i].name)}`
-      );
+      try {
+        await zl.extract(
+          `./temp/${artifactNameToFileName(artifacts.data.artifacts[i].name)}.zip`,
+          `${opts.saveLoc}/${artifactNameToFileName(artifacts.data.artifacts[i].name)}`
+        );
+      } catch(err) {
+        console.error("An error occurred while extract the zip archive!");
+        console.error(err);
+        throw err;
+      }
     }
   }
 }
