@@ -126,10 +126,16 @@ async function getGitHubBins(opts) {
       console.log(`Stream finished writing '${artifactNameToFileName(artifacts.data.artifacts[i].name)}.zip'`);
 
       // With the response being piped to disk
-      await zl.extract(
-        `./temp/${artifactNameToFileName(artifacts.data.artifacts[i].name)}.zip`,
-        `${opts.saveLoc}/${artifactNameToFileName(artifacts.data.artifacts[i].name)}`
-      );
+      try {
+        await zl.extract(
+          `./temp/${artifactNameToFileName(artifacts.data.artifacts[i].name)}.zip`,
+          `${opts.saveLoc}/${artifactNameToFileName(artifacts.data.artifacts[i].name)}`
+        );
+      } catch(err) {
+        console.error("An error occurred while extract the zip archive!");
+        console.error(err);
+        throw err;
+      }
     }
   }
 }
