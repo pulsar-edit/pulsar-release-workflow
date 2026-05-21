@@ -1,0 +1,170 @@
+# This GitHub Action Workflow will handle a **COMPLETE** Regular Release.
+# Handling all aspects possible of the release itself.
+name: TEST Automated Regular Release (Minimal, Hard-coded)
+
+on:
+  workflow_dispatch:
+    # inputs:
+    #   releaseType:
+    #     description: "The semver bump type for this Pulsar release."
+    #     required: true
+    #     default: "minor"
+    #     type: choice
+    #     options:
+    #       #- major # Included for completeness, but we NEVER bump Pulsar's major
+    #       - minor
+    #       - patch
+    #       - premajor
+    #       - preminor
+    #       - prepatch
+    #       - prerelease
+    #   baseBranch:
+    #     description: "The core repository branch to cut this Pulsar release from. Leave blank to use the core repository's default branch."
+    #     required: false
+    #     type: string
+
+env:
+  # Variables needed
+  nextPulsarVersion: "null" # Set by 'findNextPulsarVersion' script
+  releasePrLink: "null" # Set via CLI in 'Create GitHub Pull Request'
+  binaryDir: "pulsar-bins" # The directory that should contain finalized binaries
+  GH_TOKEN: ${{ secrets.AUTH_TOKEN_GITHUB }} # Set our secret auth token for `gh` CLI to use
+
+jobs:
+  full-regular-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    #### Setup
+    - name: Setup NodeJS
+      uses: actions/setup-node@v4
+      with:
+        node-version: latest
+
+    - name: Checkout this Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: '0'
+
+    - name: Install this repositories dependencies
+      run: npm install
+
+    - name: Setup Git User
+      run: |
+        git --version
+        git config --global user.name "Pulsar-Edit Bot"
+        git config --global user.email "<no-reply@users-github.com>"
+
+    # #### Tag New Release
+    # - name: Clone the pulsar-edit/pulsar repository
+    #   uses: actions/checkout@v4
+    #   with:
+    #     repository: pulsar-edit/pulsar
+    #     ref: ${{ inputs.baseBranch }}
+    #     path: pulsar
+    #     token: ${{ secrets.AUTH_TOKEN_GITHUB }}
+    #
+    # - name: Find new Version
+    #   run: |
+    #     node ./findNextPulsarVersion \
+    #       --packageLocation "pulsar/package.json" \
+    #       --envVarOutput "nextPulsarVersion" \
+    #       --bumpType ${{ inputs.releaseType }}
+    #
+    # - name: Create new branch under new version
+    #   run: git switch -c v${{ env.nextPulsarVersion }}-release
+    #   working-directory: pulsar
+    #
+    # - name: Bump Pulsar Version
+    #   run: |
+    #     node ./writeNewVersion \
+    #       --packageLocation "pulsar/package.json" \
+    #       --version ${{ env.nextPulsarVersion }}
+    #
+    # - name: Commit changes
+    #   run: |
+    #     git add package.json
+    #     git commit -m "Update Version"
+    #   working-directory: pulsar
+    #
+    # - name: Tag changes
+    #   run: git tag v${{ env.nextPulsarVersion }}
+    #   working-directory: pulsar
+    #
+    # - name: Push Branch to Remote
+    #   run: git push -u origin v${{ env.nextPulsarVersion }}-release
+    #   working-directory: pulsar
+    #
+    # - name: Create GitHub Pull Request
+    #   run: |
+    #     BASE_OPTION=""
+    #     if [ -n "${{ inputs.baseBranch }}" ]; then
+    #       BASE_OPTION="--base ${{ inputs.baseBranch }}"
+    #     fi
+    #
+    #     GhPrCreateOutput="$(gh pr create \
+    #       --title "v${{ env.nextPulsarVersion }} Release" \
+    #       --body "Automated Regular Release" \
+    #       ${BASE_OPTION})"
+    #     echo "releasePrLink=$(echo $GhPrCreateOutput)" >> $GITHUB_ENV
+    #   working-directory: pulsar
+    #
+    # - name: Wait, to ensure Cirrus receives the PR build **BEFORE** the tag build
+    #   run: |
+    #     echo "Sleep for 45 seconds to allow CirrusCI to wake up"
+    #     sleep 45
+    #     echo "Time to wake up! IN TESTING"
+    #
+    # - name: Push tag to remote
+    #   run: git push origin v${{ env.nextPulsarVersion }}
+    #   working-directory: pulsar
+
+    #### Manage Bins
+    - name: Download bins as they become available
+      run: |
+        node ./downloadBinsWhenPossible \
+          --saveLoc ${{ env.binaryDir }} \
+          --releasePrLink https://github.com/pulsar-edit/pulsar/pull/1571 \
+          --githubAuthToken ${{ secrets.AUTH_TOKEN_GITHUB }} \
+          --tag v1.133.0
+
+    # - name: Move all bins into the top level directory
+    #   # Since the binaries are downloaded into sub folders based on category
+    #   # we first need to move them all up into the current directory
+    #   run: mv */* .
+    #   working-directory: ${{ env.binaryDir }}
+    #
+    # - name: Delete all empty subdirectories (Which all should be)
+    #   run: find . -type d -empty -delete
+    #   working-directory: ${{ env.binaryDir }}
+    #
+    # - name: Generate SHASUMS file
+    #   run: sha256sum * | tee SHA256SUMS.txt
+    #   working-directory: ${{ env.binaryDir }}
+    #
+    # #### Publish Bins
+    # - name: Create Release & Upload all Bins
+    #   run: |
+    #     node ./createReleaseAndUploadBins \
+    #       --binLoc ${{ env.binaryDir }} \
+    #       --version v${{ env.nextPulsarVersion }} \
+    #       --githubAuthToken ${{ secrets.AUTH_TOKEN_GITHUB }}
+    #
+    # #### Cleanup
+    # - name: Add back 'package.json' build identifier
+    #   run: |
+    #     node ./addBuildIdToVersion \
+    #       --packageLocation "pulsar/package.json"
+    #
+    # - name: Commit these changes
+    #   run: |
+    #     git add package.json
+    #     git commit -m "Add back build identifier"
+    #   working-directory: pulsar
+    #
+    # - name: Push Branch to Remote
+    #   run: git push -u origin v${{ env.nextPulsarVersion }}-release
+    #   working-directory: pulsar
+    #
+    # # TODO Do we want to auto-close the PR created?
