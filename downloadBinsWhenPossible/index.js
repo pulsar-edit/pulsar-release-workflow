@@ -18,7 +18,7 @@
 
 const wrapper = require("../wrapper/async.js");
 const getGitHubBins = require("./getGitHubBins.js");
-const getCirrusCiBins = require("./getCirrusCiBins.js");
+// const getCirrusCiBins = require("./getCirrusCiBins.js");
 
 const DEFAULTS = {
   // === Index defaults
@@ -31,6 +31,8 @@ const DEFAULTS = {
   // the built binaries as artifacts in GitHub
   githubArtifactsToDownload: [
     "macos-14 Binaries",
+    "macos-14 x64 Binaries",
+    "ubuntu-24.04-arm Binaries",
     "ubuntu-latest Binaries",
     "windows-latest Binaries"
   ], // ^^ Names of the Artifacts we want to download from GitHub
@@ -77,16 +79,17 @@ async function controller(opts) {
     opts.retryTimeMs
   );
 
-  // Then lets grab CirrusCI Bins
-  await retryOnFailure(
-    async () => {
-      // This is the function to retry over and over
-      // Providing a function here so we can pass our opts
-      return await getCirrusCiBins(opts);
-    },
-    opts.retryCount,
-    opts.retryTimeMs
-  );
+  // // Then lets grab CirrusCI Bins
+  // // NOTE: Cirrus CI is no more, as of June 2026.
+  // await retryOnFailure(
+  //   async () => {
+  //     // This is the function to retry over and over
+  //     // Providing a function here so we can pass our opts
+  //     return await getCirrusCiBins(opts);
+  //   },
+  //   opts.retryCount,
+  //   opts.retryTimeMs
+  // );
 
   // After these steps we should ideally have a directory (saveLoc) with the following data:
   /*
