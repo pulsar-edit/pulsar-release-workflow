@@ -32,7 +32,6 @@ Further documentation of this should be created in `pulsar-edit/.github`, but un
 - [X] Tag new Version
 - [X] Create PR to `pulsar` with new version
 - [X] Download bins from GitHub
-- [X] Download bins from CirrusCi
 - [X] Generate SHA256SUMs for bins
 - [X] Create GitHub Release for new version
 - [X] Upload assets to new version
