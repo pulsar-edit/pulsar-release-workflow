@@ -29,6 +29,8 @@ const DEFAULTS = {
   // the built binaries as artifacts in GitHub
   githubArtifactsToDownload: [
     "macos-14 Binaries",
+    "macos-14 x64 Binaries",
+    "ubuntu-24.04-arm Binaries",
     "ubuntu-latest Binaries",
     "windows-latest Binaries"
   ], // ^^ Names of the Artifacts we want to download from GitHub
