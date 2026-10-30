@@ -77,13 +77,13 @@ async function getGitHubBins(opts) {
     throw new Error("Unable to locate a valid workflow!");
   }
 
-  // Now lets check if this workflow will have the binaries we want
+  // Now let's check if this workflow will have the binaries we want
   if (targetWorkflow.status !== "completed" || targetWorkflow.conclusion !== "success") {
     throw new Error("The only valid workflows have not completed or have failed!");
   }
 
-  // Now knowing we have a successful, complete, and correct workflow.
-  // Lets find our bins from it
+  // Now knowing we have a successful, complete, and correct workflow… let's
+  // find our bins.
   console.log(`Located valid workflow. Run ID: ${targetWorkflow.id}`);
   const artifacts = await octokit.request("GET /repos/{owner}/{repo}/actions/runs/{run_id}/artifacts", {
     owner: opts.githubOrg,
@@ -91,7 +91,7 @@ async function getGitHubBins(opts) {
     run_id: targetWorkflow.id
   });
 
-  // Now with our list of artifacts, lets iterate them and see which ones we want to download
+  // Now with our list of artifacts, let's iterate them and see which ones we want to download
   for (let i = 0; i < artifacts.data.total_count; i++) {
     // TEMP:: Extra Logging for Error troubleshooting
     console.log(`TEMP: Extra artifact logging: Discovered artifact name: '${artifacts.data.artifacts[i].name}'`);

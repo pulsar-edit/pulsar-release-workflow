@@ -13,12 +13,10 @@
     * githubRepo:
     * githubActionName:
     * githubArtifactsToDownload:
-    * cirrusRepoID:
 */
 
 const wrapper = require("../wrapper/async.js");
 const getGitHubBins = require("./getGitHubBins.js");
-const getCirrusCiBins = require("./getCirrusCiBins.js");
 
 const DEFAULTS = {
   // === Index defaults
@@ -31,11 +29,11 @@ const DEFAULTS = {
   // the built binaries as artifacts in GitHub
   githubArtifactsToDownload: [
     "macos-14 Binaries",
+    "macos-14 x64 Binaries",
+    "ubuntu-24.04-arm Binaries",
     "ubuntu-latest Binaries",
     "windows-latest Binaries"
   ], // ^^ Names of the Artifacts we want to download from GitHub
-  // === CirrusCI Bins defaults
-  cirrusRepoID: "6483909499158528", // The repository ID on Cirrus. 'pulsar-edit/pulsar' by default
 };
 
 wrapper({
@@ -50,7 +48,6 @@ wrapper({
     { name: "githubRepo", type: String, defaultValue: DEFAULTS.githubRepo },
     { name: "githubActionName", type: String, defaultValue: DEFAULTS.githubActionName },
     { name: "githubArtifactsToDownload", type: String, multiple: true, defaultValue: DEFAULTS.githubArtifactsToDownload },
-    { name: "cirrusRepoID", type: String, defaultValue: DEFAULTS.cirrusRepoID },
   ],
   startMsg: "Begin searching for bins...",
   successMsg: "Successfully saved all bins.",
@@ -60,29 +57,16 @@ wrapper({
 
 async function controller(opts) {
   // This is in charge of orchestrating all aspects of this download process
-  //  - Download bins from GitHub Actions
-  //  - Download bins from CirrusCI
+  // - Download bins from GitHub Actions
   // - Place all downloaded bins into the provided folder
   // - During all of this properly rechecking over and over as needed
 
-  // Lets first attempt getting GitHub Bins
-
+  // Let's first attempt getting GitHub Bins
   await retryOnFailure(
     async () => {
       // This is the function that will be retried over and over
       // Providing a function here so we can pass our opts
       return await getGitHubBins(opts);
-    },
-    opts.retryCount,
-    opts.retryTimeMs
-  );
-
-  // Then lets grab CirrusCI Bins
-  await retryOnFailure(
-    async () => {
-      // This is the function to retry over and over
-      // Providing a function here so we can pass our opts
-      return await getCirrusCiBins(opts);
     },
     opts.retryCount,
     opts.retryTimeMs
