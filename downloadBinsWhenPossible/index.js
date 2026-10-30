@@ -27,13 +27,7 @@ const DEFAULTS = {
   githubRepo: "pulsar", // Repository Name to search for bins within
   githubActionName: "Build Pulsar Binaries", // The workflow name who will have
   // the built binaries as artifacts in GitHub
-  githubArtifactsToDownload: [
-    "macos-14 Binaries",
-    "macos-14 x64 Binaries",
-    "ubuntu-24.04-arm Binaries",
-    "ubuntu-latest Binaries",
-    "windows-latest Binaries"
-  ], // ^^ Names of the Artifacts we want to download from GitHub
+  githubArtifactsExclusions: "video", // Regex lowercased keyword exclusions for found artifacts
 };
 
 wrapper({
@@ -47,7 +41,7 @@ wrapper({
     { name: "githubOrg", type: String, defaultValue: DEFAULTS.githubOrg },
     { name: "githubRepo", type: String, defaultValue: DEFAULTS.githubRepo },
     { name: "githubActionName", type: String, defaultValue: DEFAULTS.githubActionName },
-    { name: "githubArtifactsToDownload", type: String, multiple: true, defaultValue: DEFAULTS.githubArtifactsToDownload },
+    { name: "githubArtifactsExclusions", type: String, defaultValue: DEFAULTS.githubArtifactsExclusions },
   ],
   startMsg: "Begin searching for bins...",
   successMsg: "Successfully saved all bins.",

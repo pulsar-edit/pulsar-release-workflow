@@ -96,7 +96,7 @@ async function getGitHubBins(opts) {
     // TEMP:: Extra Logging for Error troubleshooting
     console.log(`TEMP: Extra artifact logging: Discovered artifact name: '${artifacts.data.artifacts[i].name}'`);
     // END TEMP
-    if (opts.githubArtifactsToDownload.includes(artifacts.data.artifacts[i].name)) {
+    if (artifacts.data.artifacts[i].name.toLowerCase().search(opts.githubArtifactsExclusions) == -1) {
       console.log(`Downloading: '${artifacts.data.artifacts[i].name}'; with Artifact ID: ${artifacts.data.artifacts[i].id}`);
 
       // https://github.com/octokit/request.js/issues/240#issuecomment-825070563
