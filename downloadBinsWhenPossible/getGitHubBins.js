@@ -16,7 +16,7 @@ const fs = require("fs");
 const { performance } = require("node:perf_hooks");
 const superagent = require("superagent");
 const zl = require("zip-lib");
-const { getPrNumber, makeDir, asyncWriteStreamProgress } = require("./shared.js");
+const { getPrNumber, makeDir, asyncWriteStreamProgress, NonRetryableError } = require("./shared.js");
 
 module.exports =
 async function getGitHubBins(opts) {
@@ -92,6 +92,7 @@ async function getGitHubBins(opts) {
   });
 
   const artifactPattern = new RegExp(opts.githubArtifactsPattern, "i");
+  let downloadCount = 0;
 
   // Now with our list of artifacts, let's iterate them and see which ones we want to download
   for (let i = 0; i < artifacts.data.total_count; i++) {
@@ -138,7 +139,15 @@ async function getGitHubBins(opts) {
         console.error(err);
         throw err;
       }
+
+      downloadCount++;
     }
+  }
+
+  // The run is complete and successful, so its artifact list is final;
+  // retrying would only find the same artifacts again.
+  if (downloadCount === 0) {
+    throw new NonRetryableError(`No artifacts in run ${targetWorkflow.id} matched /${opts.githubArtifactsPattern}/i!`);
   }
 }
 

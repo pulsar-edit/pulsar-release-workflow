@@ -2,7 +2,17 @@ const fs = require("fs");
 const { performance } = require("node:perf_hooks");
 const cliProgress = require("cli-progress");
 
+// Thrown for failures that retrying cannot fix; `retryOnFailure` exits
+// immediately instead of waiting out the remaining retries.
+class NonRetryableError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "NonRetryableError";
+  }
+}
+
 module.exports = {
+  NonRetryableError,
   // Takes a GitHub link and returns the PR number for it.
   getPrNumber: (prLink) => {
     // https://github.com/owner/repo/pull/<pr-number>

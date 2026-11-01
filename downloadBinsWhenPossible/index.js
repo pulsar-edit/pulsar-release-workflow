@@ -18,6 +18,7 @@
 
 const wrapper = require("../wrapper/async.js");
 const getGitHubBins = require("./getGitHubBins.js");
+const { NonRetryableError } = require("./shared.js");
 
 const DEFAULTS = {
   // === Index defaults
@@ -112,6 +113,13 @@ async function retryOnFailure(retryFn, retryCount, retryTimeMs) {
         console.log(`Attempting to trigger bin download. Attempt ${attempt + 1}/${retries}...`);
         return await fn();
       } catch(err) {
+        if (err instanceof NonRetryableError) {
+          console.error(`Attempt ${attempt + 1}/${retries} failed with an error that retrying cannot fix.`);
+          console.error("Unable to download bins!");
+          console.error(err);
+          process.exit(1);
+        }
+
         console.log(`Attempt ${attempt + 1}/${retries} failed. Retrying in ${delayMs}...`);
 
         if (attempt++ < retries) {
