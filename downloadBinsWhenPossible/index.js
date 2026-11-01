@@ -12,7 +12,8 @@
     * githubOrg:
     * githubRepo:
     * githubActionName:
-    * githubArtifactsToDownload:
+    * githubArtifactsPattern: Case-insensitive regex; artifacts whose names
+      match it are downloaded
 */
 
 const wrapper = require("../wrapper/async.js");
@@ -27,7 +28,10 @@ const DEFAULTS = {
   githubRepo: "pulsar", // Repository Name to search for bins within
   githubActionName: "Build Pulsar Binaries", // The workflow name who will have
   // the built binaries as artifacts in GitHub
-  githubArtifactsExclusions: "video", // Regex lowercased keyword exclusions for found artifacts
+  githubArtifactsPattern: "binaries\\s*$", // Case-insensitive regex; matching
+  // artifact names are downloaded. Pulsar's build workflow names these
+  // `${{ matrix.os }} Binaries`; other artifacts (videos, crash dumps) are
+  // skipped.
 };
 
 wrapper({
@@ -41,7 +45,7 @@ wrapper({
     { name: "githubOrg", type: String, defaultValue: DEFAULTS.githubOrg },
     { name: "githubRepo", type: String, defaultValue: DEFAULTS.githubRepo },
     { name: "githubActionName", type: String, defaultValue: DEFAULTS.githubActionName },
-    { name: "githubArtifactsExclusions", type: String, defaultValue: DEFAULTS.githubArtifactsExclusions },
+    { name: "githubArtifactsPattern", type: String, defaultValue: DEFAULTS.githubArtifactsPattern },
   ],
   startMsg: "Begin searching for bins...",
   successMsg: "Successfully saved all bins.",

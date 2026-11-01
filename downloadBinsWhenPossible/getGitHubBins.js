@@ -91,12 +91,14 @@ async function getGitHubBins(opts) {
     run_id: targetWorkflow.id
   });
 
+  const artifactPattern = new RegExp(opts.githubArtifactsPattern, "i");
+
   // Now with our list of artifacts, let's iterate them and see which ones we want to download
   for (let i = 0; i < artifacts.data.total_count; i++) {
     // TEMP:: Extra Logging for Error troubleshooting
     console.log(`TEMP: Extra artifact logging: Discovered artifact name: '${artifacts.data.artifacts[i].name}'`);
     // END TEMP
-    if (artifacts.data.artifacts[i].name.toLowerCase().search(opts.githubArtifactsExclusions) == -1) {
+    if (artifactPattern.test(artifacts.data.artifacts[i].name)) {
       console.log(`Downloading: '${artifacts.data.artifacts[i].name}'; with Artifact ID: ${artifacts.data.artifacts[i].id}`);
 
       // https://github.com/octokit/request.js/issues/240#issuecomment-825070563
