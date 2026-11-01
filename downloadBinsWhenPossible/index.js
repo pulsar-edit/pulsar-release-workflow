@@ -12,11 +12,13 @@
     * githubOrg:
     * githubRepo:
     * githubActionName:
-    * githubArtifactsToDownload:
+    * githubArtifactsPattern: Case-insensitive regex; artifacts whose names
+      match it are downloaded
 */
 
 const wrapper = require("../wrapper/async.js");
 const getGitHubBins = require("./getGitHubBins.js");
+const { NonRetryableError } = require("./shared.js");
 
 const DEFAULTS = {
   // === Index defaults
@@ -27,13 +29,10 @@ const DEFAULTS = {
   githubRepo: "pulsar", // Repository Name to search for bins within
   githubActionName: "Build Pulsar Binaries", // The workflow name who will have
   // the built binaries as artifacts in GitHub
-  githubArtifactsToDownload: [
-    "macos-14 Binaries",
-    "macos-14 x64 Binaries",
-    "ubuntu-24.04-arm Binaries",
-    "ubuntu-latest Binaries",
-    "windows-latest Binaries"
-  ], // ^^ Names of the Artifacts we want to download from GitHub
+  githubArtifactsPattern: "binaries\\s*$", // Case-insensitive regex; matching
+  // artifact names are downloaded. Pulsar's build workflow names these
+  // `${{ matrix.os }} Binaries`; other artifacts (videos, crash dumps) are
+  // skipped.
 };
 
 wrapper({
@@ -47,7 +46,7 @@ wrapper({
     { name: "githubOrg", type: String, defaultValue: DEFAULTS.githubOrg },
     { name: "githubRepo", type: String, defaultValue: DEFAULTS.githubRepo },
     { name: "githubActionName", type: String, defaultValue: DEFAULTS.githubActionName },
-    { name: "githubArtifactsToDownload", type: String, multiple: true, defaultValue: DEFAULTS.githubArtifactsToDownload },
+    { name: "githubArtifactsPattern", type: String, defaultValue: DEFAULTS.githubArtifactsPattern },
   ],
   startMsg: "Begin searching for bins...",
   successMsg: "Successfully saved all bins.",
@@ -114,6 +113,13 @@ async function retryOnFailure(retryFn, retryCount, retryTimeMs) {
         console.log(`Attempting to trigger bin download. Attempt ${attempt + 1}/${retries}...`);
         return await fn();
       } catch(err) {
+        if (err instanceof NonRetryableError) {
+          console.error(`Attempt ${attempt + 1}/${retries} failed with an error that retrying cannot fix.`);
+          console.error("Unable to download bins!");
+          console.error(err);
+          process.exit(1);
+        }
+
         console.log(`Attempt ${attempt + 1}/${retries} failed. Retrying in ${delayMs}...`);
 
         if (attempt++ < retries) {
